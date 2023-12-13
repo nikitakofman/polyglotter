@@ -35,6 +35,10 @@
     --radius: 0.5rem;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   .dark {
     --background: 222.2 39.29% 10.98%;
     --foreground: 210 40% 98%;
@@ -72,5 +76,16 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.customminheight {
+  min-height: calc(100vh - 104px); /* Default value */
+}
+
+@media (min-width: 640px) {
+  /* Tailwind's 'sm' breakpoint */
+  .customminheight {
+    min-height: calc(100vh - 56px);
   }
 }

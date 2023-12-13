@@ -112,7 +112,7 @@ function ChatInput({ chatId }: { chatId: string }) {
               </FormItem>
             )}
           />
-          <Button type="submit" className="bg-violet-600 text-white">
+          <Button type="submit" className="bg-[#EF9351] text-white">
             Send
           </Button>
         </form>

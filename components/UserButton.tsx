@@ -16,6 +16,7 @@ import { useSubscriptionStore } from "@/store/store";
 import LoadingSpinner from "./LoadingSpinner";
 import { StarIcon } from "lucide-react";
 import ManageAccountButton from "./ManageAccountButton";
+import Link from "next/link";
 
 function UserButton({ session }: { session: Session | null }) {
   // Subscription listener...
@@ -48,18 +49,25 @@ function UserButton({ session }: { session: Session | null }) {
 
           {subscription?.role === "pro" && (
             <>
-              <DropdownMenuLabel className="text-xs flex items-center justify-center space-x-1 text-[#E935C1] animate-pulse">
-                <StarIcon fill="#E935C1" />
+              <DropdownMenuLabel className="text-xs flex items-center justify-center space-x-1 text-[#EF9351] animate-pulse">
+                <StarIcon fill="#EF9351" />
                 <p>PRO</p>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+
               <DropdownMenuItem>
                 <ManageAccountButton />
               </DropdownMenuItem>
             </>
           )}
+          <DropdownMenuItem className="cursor-pointer">
+            <Link href="/profile">Profile</Link>
+          </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => signOut()}>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => signOut()}
+          >
             Sign Out
           </DropdownMenuItem>
         </DropdownMenuContent>

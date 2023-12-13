@@ -14,28 +14,41 @@ async function Header() {
   console.log(session);
 
   return (
-    <header className="sticky top-0 z-50 bg-white  dark:bg-gray-900">
-      <nav className="flex flex-col sm:flex-row items-center pr-5 pl-2 bg-white pb-5 sm:pb-0 dark:bg-transparent  border-white/30 max-w-full mx-auto">
-        <Logo />
-        <div className="flex-1 flex items-center justify-end space-x-4">
+    <header className="sticky w-full top-0 z-50 bg-white border-b-2 dark:bg-gray-900">
+      <nav className="flex flex-col sm:flex-row items-center pr-2 pl-2 bg-white pb-2 sm:pb-0 dark:bg-transparent  border-white/30 max-w-full mx-auto">
+        <div className="flex items-center justify-between w-full">
+          {" "}
+          <Logo />{" "}
+          <div className="sm:hidden flex">
+            <UserButton session={session} />
+          </div>
+        </div>
+        <div className="flex-1 flex items-center w-full justify-between sm:justify-end ">
           {/* LanguageSelect */}
+          <div className="flex items-center">
+            <div className="mr-4">
+              <LanguageSelect />
+            </div>
 
-          <LanguageSelect />
-
-          {session ? (
-            <>
-              <Link href={"/chat"} prefetch={false}>
-                <MessagesSquareIcon className="text-black dark:text-white" />
+            {session ? (
+              <>
+                <Link href={"/chat"} prefetch={false}>
+                  <MessagesSquareIcon className="text-black dark:text-white" />
+                </Link>
+                <CreateChatButton />
+              </>
+            ) : (
+              <Link href="/pricing" className="hover:text-gray-400 pr-3">
+                Pricing
               </Link>
-              <CreateChatButton />
-            </>
-          ) : (
-            <Link href="/pricing">Pricing</Link>
-          )}
-          {/* Session && ()
-                        .... ) */}
-          <DarkModeToggle />
-          <UserButton session={session} />
+            )}
+          </div>
+          <div className="flex items-center">
+            <div className="hidden sm:flex mr-3">
+              <UserButton session={session} />
+            </div>
+            <DarkModeToggle />
+          </div>
         </div>
       </nav>
       <UpgradeBanner />

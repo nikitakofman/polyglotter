@@ -108,7 +108,7 @@ function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
       </div>
     );
   return (
-    <Button onClick={createNewChat} variant={"ghost"}>
+    <Button onClick={createNewChat} variant={"link"}>
       <MessageSquarePlusIcon />
     </Button>
   );

@@ -35,7 +35,7 @@ function ChatMessages({
   return (
     <div className="p-5">
       {!loading && messages?.length === 0 && (
-        <div className="flex flex-col justify-center text-center items-center p-20 rounded-xl space-y-2 bg-indigo-400 text-white font-extralight">
+        <div className="flex flex-col justify-center text-center items-center p-20 rounded-xl space-y-2 bg-[#EF9351] text-white font-extralight">
           <MessageCircleIcon className="h-10 w-10" />
           <h2>
             <span className="font-bold">Invite a friend</span> &
@@ -55,7 +55,7 @@ function ChatMessages({
             <div
               className={`flex flex-col relative space-y-2 p-4 w-fit line-clamp-1 mx-2 rounded-lg ${
                 isSender
-                  ? "ml-auto bg-violet-600 text-white rounded-br-none"
+                  ? "ml-auto border border-[#EF9351]/30 text-black dark:text-white rounded-br-none"
                   : "bg-gray-100 dark:text-gray-100 dark:bg-slate-700 rounded-bl-none"
               }`}
             >
