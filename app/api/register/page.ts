@@ -6,6 +6,7 @@ console.log("hello");
 
 export default async function register(
   req: NextApiRequest,
+  //@ts-ignore
   res: NextApiResponse
 ) {
   console.log(req.body);
