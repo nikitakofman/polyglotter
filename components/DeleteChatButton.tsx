@@ -16,6 +16,7 @@ import { useToast } from "./ui/use-toast";
 import { useSession } from "next-auth/react"; // 35.4k (gzipped: 10k)
 import { useRouter } from "next/navigation"; // 11.5k (gzipped: 2.8k)
 import useAdminId from "@/hooks/useAdminId";
+import { Trash2 } from "lucide-react";
 
 function DeleteChatButton({ chatId }: { chatId: string }) {
   const { data: session } = useSession();
@@ -63,7 +64,10 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
     session?.user.id === adminId && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="destructive">Delete Chat</Button>
+          <p className="text-black dark:text-white flex text-sm items-center cursor-pointer hover:text-red-400 dark:hover:text-red-400  w-full">
+            <Trash2 className="w-4 mr-2" />
+            Delete Chat
+          </p>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

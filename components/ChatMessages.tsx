@@ -33,12 +33,12 @@ function ChatMessages({
   }, [messages, messagesEndRef]);
 
   return (
-    <div className="p-5">
+    <div className="pr-5 pl-5 pb-20 mt-3">
       {!loading && messages?.length === 0 && (
-        <div className="flex flex-col justify-center text-center items-center p-20 rounded-xl space-y-2 bg-[#EF9351] text-white font-extralight">
+        <div className="flex flex-col justify-center text-center items-center p-10  rounded-xl space-y-2  text-black dark:text-white font-extralight">
           <MessageCircleIcon className="h-10 w-10" />
           <h2>
-            <span className="font-bold">Invite a friend</span> &
+            <span className="font-bold">Invite a friend</span> &{" "}
             <span className="font-bold">
               Send your first message in ANY language
             </span>{" "}

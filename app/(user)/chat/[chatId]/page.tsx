@@ -8,6 +8,21 @@ import { sortedMessagesRef } from "@/lib/converters/Message";
 import { getDocs } from "firebase/firestore";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import {
+  Menubar,
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 
 type Props = {
   params: {
@@ -31,7 +46,7 @@ async function ChatPage({ params: { chatId } }: Props) {
   return (
     <>
       <AdminControls chatId={chatId} />
-      <ChatMembersBadges chatId={chatId} />
+
       <div className="flex-1">
         <ChatMessages
           chatId={chatId}

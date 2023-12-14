@@ -17,6 +17,7 @@ import { Label } from "./ui/label";
 import { Dispatch, SetStateAction } from "react";
 import { useToast } from "./ui/use-toast";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 function ShareLink({
   isOpen,
@@ -58,10 +59,11 @@ function ShareLink({
       defaultOpen={isOpen}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Copy className="mr-2" />
+        <p className="text-black dark:text-white flex text-sm hover:text-gray-400 dark:hover:text-gray-300 cursor-pointer items-center">
+          {" "}
+          <Copy className="w-4 mr-2" />
           Share Link
-        </Button>
+        </p>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -90,13 +92,14 @@ function ShareLink({
           </Button>
         </div>
       </DialogContent>
-      <DialogFooter className="sm:justify-start">
+      {/* <DialogFooter className="sm:justify-start">
         <DialogClose asChild>
-          <Button type="button" variant="secondary">
-            Close
-          </Button>
+          <p className="text-white">
+            {" "}
+            <Link href="/chat">Close</Link>
+          </p>
         </DialogClose>
-      </DialogFooter>
+      </DialogFooter> */}
     </Dialog>
   );
 }

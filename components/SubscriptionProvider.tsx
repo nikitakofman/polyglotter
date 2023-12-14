@@ -15,6 +15,8 @@ function SubscriptionProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!session) return;
 
+    console.log("thos", session);
+
     return onSnapshot(
       subscriptionRef(session?.user.id),
       (snapshot) => {

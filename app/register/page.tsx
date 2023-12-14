@@ -27,8 +27,8 @@ async function Register() {
             />
             <defs>
               <radialGradient id="radial-gradient">
-                <stop stopColor="#7775D6" />
-                <stop offset={1} stopColor="#E935C1" />
+                <stop stopColor="#EF9351" />
+                <stop offset={1} stopColor="#EF9351" />
               </radialGradient>
             </defs>
           </svg>

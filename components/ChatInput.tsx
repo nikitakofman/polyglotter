@@ -90,11 +90,11 @@ function ChatInput({ chatId }: { chatId: string }) {
   }
 
   return (
-    <div className="sticky bottom-0">
+    <div className="fixed bottom-0 left-0 right-0   ">
       <FormProvider {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex space-x-2 p-2 rounded-t-xl max-w-4xl mx-auto bg-white border dark:bg-slate-800"
+          className="flex space-x-2 p-2 rounded-t-xl  mx-auto  dark:bg-slate-800"
         >
           <FormField
             control={form.control}
