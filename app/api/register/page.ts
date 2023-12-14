@@ -5,6 +5,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 console.log("hello");
 
 export default async function register(
+  //@ts-ignore
   req: NextApiRequest,
   //@ts-ignore
   res: NextApiResponse
