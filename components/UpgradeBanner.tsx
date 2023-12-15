@@ -15,12 +15,12 @@ function UpgradeBanner() {
   if (subscription === undefined || isPro) return null;
 
   return (
-    <Button
+    <div
       onClick={() => router.push("/register")}
-      className="w-full rounded-non bg-gradient-to-r from-orange-700 to-orange-200 text-center text-white px-5 py-5 hover:from-orange-600 hover:to-orange-100 hover:shadow-md transition-all"
+      className="bg-[#EF9352] cursor-pointer mr-3 inline-block text-transparent bg-clip-text"
     >
-      Upgrade to Pro to unlock all features!
-    </Button>
+      PRO
+    </div>
   );
 }
 

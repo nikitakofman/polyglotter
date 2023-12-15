@@ -48,10 +48,7 @@ const subscriptionConverter: FirestoreDataConverter<Subscription> = {
   },
 };
 
-console.log(db);
-
 export const subscriptionRef = (userId: string) => {
-  console.log("this", userId); // This will log the userId to the console
   return collection(db, "customers", userId, "subscriptions").withConverter(
     subscriptionConverter
   );

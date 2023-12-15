@@ -2,17 +2,12 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc, getFirestore } from "firebase/firestore";
 import { NextApiRequest, NextApiResponse } from "next";
 
-console.log("hello");
-
 export default async function register(
   req: NextApiRequest,
 
   res: NextApiResponse
 ) {
-  console.log(req.body);
   const { email, password } = req.body;
-
-  console.log(email);
 
   try {
     const auth = getAuth();

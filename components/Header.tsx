@@ -11,7 +11,7 @@ import LanguageSelect from "./LanguageSelect";
 
 async function Header() {
   const session = await getServerSession(authOptions);
-  console.log(session);
+  console.log("this", session);
 
   return (
     <header className="sticky w-full top-0 z-50 bg-white border-b-2 dark:bg-gray-900">
@@ -19,7 +19,8 @@ async function Header() {
         <div className="flex items-center justify-between w-full">
           {" "}
           <Logo />{" "}
-          <div className="sm:hidden flex">
+          <div className="sm:hidden flex items-center">
+            <UpgradeBanner />
             <UserButton session={session} />
           </div>
         </div>
@@ -28,8 +29,11 @@ async function Header() {
           <div className="flex items-center">
             <div className="mr-4">
               <LanguageSelect />
+            </div>{" "}
+            <div className="bg-transparent hidden sm:flex">
+              {" "}
+              <UpgradeBanner />
             </div>
-
             {session ? (
               <>
                 <Link href={"/chat"} prefetch={false}>
@@ -51,7 +55,6 @@ async function Header() {
           </div>
         </div>
       </nav>
-      <UpgradeBanner />
     </header>
   );
 }

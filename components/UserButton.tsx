@@ -35,15 +35,25 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
+  sendSignInLinkToEmail,
 } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { auth } from "@/firebase";
+import { toast } from "./ui/use-toast";
 
 function UserButton({ session }: { session: Session | null }) {
   // Subscription listener...
   const subscription = useSubscriptionStore((state) => state.subscription);
 
   const router = useRouter();
+
+  const actionCodeSettings = {
+    // URL you want to redirect back to. The domain (www.example.com) for this
+    // URL must be in the authorized domains list in the Firebase Console.
+    url: "http://localhost:3000/verify",
+    // This must be true.
+    handleCodeInApp: true,
+  };
 
   const signOutRe = async () => {
     await signOut().then(() => {
@@ -61,6 +71,20 @@ function UserButton({ session }: { session: Session | null }) {
   const [registerName, setRegisterName] = useState("");
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
 
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+
+  // Function to open login dialog
+  const openLoginDialog = () => {
+    setIsLoginDialogOpen(true);
+    setIsRegisterDialogOpen(false); // Close register dialog if open
+  };
+
+  // Function to open register dialog
+  const openRegisterDialog = () => {
+    setIsLoginDialogOpen(false); // Close login dialog if open
+    setIsRegisterDialogOpen(true);
+  };
+
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -69,23 +93,25 @@ function UserButton({ session }: { session: Session | null }) {
       .then(async (userCredential) => {
         // Signed up
         const user = userCredential.user;
-        console.log(user);
+
         // Now add this user's information to Firestore
         const firestore = getFirestore();
         const userRef = doc(firestore, "users", user.uid);
         await setDoc(userRef, {
           email: user.email,
-          emailVerified: null,
+          emailVerified: false,
           image: "/useravatar.png",
           name: registerName,
-          // Add other user information as needed
         }).then(() => {
           const auth = getAuth();
+
+          sendSignInLinkToEmail(auth, registerEmail, actionCodeSettings);
+
           signInWithEmailAndPassword(auth, registerEmail, registerPassword)
             .then((userCredential) => {
               // Signed in
               const user = userCredential.user;
-              console.log("thisxxX", user.email);
+
               signIn("credentials", {
                 name: registerName,
                 email: registerEmail,
@@ -122,7 +148,7 @@ function UserButton({ session }: { session: Session | null }) {
         const userSnapshot = await getDoc(userRef);
         if (userSnapshot.exists()) {
           const userData = userSnapshot.data();
-          console.log(userData.name);
+
           // Now sign in with NextAuth
           signIn("credentials", {
             name: userData.name, // Extracted name from Firestore
@@ -132,6 +158,12 @@ function UserButton({ session }: { session: Session | null }) {
             callbackUrl: "/chat",
           });
         } else {
+          toast({
+            title: "Error",
+            description: "Invalid e-mail or password.",
+            variant: "destructive",
+            duration: 2000,
+          });
           // Handle the case where the user data does not exist in Firestore
           console.error("User data not found in Firestore");
         }
@@ -139,7 +171,6 @@ function UserButton({ session }: { session: Session | null }) {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        // Handle login errors here
       });
   };
 
@@ -153,112 +184,121 @@ function UserButton({ session }: { session: Session | null }) {
   //   </Button>
   // );
 
-  if (!session)
+  if (!session) {
     return (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant={"outline"}>Sign in</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <form onSubmit={handleLogin} className="space-y-8">
-            <div>
-              <label htmlFor="email">Email</label>
-              <Input
-                type="text"
-                id="email"
-                name="email"
-                value={email}
-                className="mt-2"
-                onChange={(e) => setEmail(e.target.value)}
+      <>
+        <Button variant={"outline"} onClick={openLoginDialog}>
+          Sign in
+        </Button>
+
+        {/* Login Dialog */}
+        <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
+          <DialogContent>
+            <Button
+              variant="outline"
+              onClick={() => signIn("google", { callbackUrl: "/chat" })}
+              className="mt-8"
+            >
+              <Image
+                width={300}
+                height={100}
+                alt="google logo"
+                src="/google.png"
+                className="w-5 mr-2"
               />
+              Continue with Google
+            </Button>
+            <div className="flex w-full mt-3 mb-3 items-center justify-center">
+              <div className="flex-grow h-px bg-gray-500"></div>
+              <p className="mx-2 text-sm text-gray-600 ml-5 mr-5 dark:text-white">
+                or
+              </p>
+              <div className="flex-grow h-px bg-gray-500"></div>
             </div>
-            <div>
-              <label htmlFor="password">Password</label>
-              <Input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                className="mt-2"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center justify-center">
-              <Button type="submit" variant="outline">
-                Log in
-              </Button>
-            </div>
-          </form>
-
-          <Button
-            variant="outline"
-            onClick={() => signIn("google", { callbackUrl: "/chat" })}
-          >
-            <Image
-              width={300}
-              height={100}
-              alt="google logo"
-              src="/google.png"
-              className="w-5 mr-2"
-            />
-            Connect with Google
-          </Button>
-
-          <p className="text-center">No account yet ?</p>
-
-          <Dialog
-            open={isRegisterDialogOpen}
-            onOpenChange={setIsRegisterDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button variant={"outline"}>Register</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <form onSubmit={handleRegister} className="space-y-8">
-                {/* Registration Fields */}
-                <div>
-                  <label htmlFor="username">Name</label>
-                  <Input
-                    type="text"
-                    id="username"
-                    name="username"
-                    value={registerName}
-                    className="mt-2"
-                    onChange={(e) => setRegisterName(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email">E-mail</label>
-                  <Input
-                    type="text"
-                    id="email"
-                    name="email"
-                    value={registerEmail}
-                    className="mt-2"
-                    onChange={(e) => setRegisterEmail(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password">Password</label>
-                  <Input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={registerPassword}
-                    className="mt-2"
-                    onChange={(e) => setRegisterPassword(e.target.value)}
-                  />
-                </div>
-                {/* Additional Fields as Needed */}
+            <form onSubmit={handleLogin} className="space-y-8">
+              <div>
+                <label htmlFor="email">Email</label>
+                <Input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={email}
+                  className="mt-2"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="password">Password</label>
+                <Input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  className="mt-2"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
                 <Button type="submit" variant="outline">
+                  Log in
+                </Button>
+                <Button variant={"outline"} onClick={openRegisterDialog}>
                   Register
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </DialogContent>
-      </Dialog>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Registration Dialog */}
+        <Dialog
+          open={isRegisterDialogOpen}
+          onOpenChange={setIsRegisterDialogOpen}
+        >
+          <DialogContent>
+            <form onSubmit={handleRegister} className="space-y-8">
+              <div>
+                <label htmlFor="username">Name</label>
+                <Input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={registerName}
+                  className="mt-2"
+                  onChange={(e) => setRegisterName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="registerEmail">E-mail</label>
+                <Input
+                  type="text"
+                  id="registerEmail"
+                  name="registerEmail"
+                  value={registerEmail}
+                  className="mt-2"
+                  onChange={(e) => setRegisterEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="registerPassword">Password</label>
+                <Input
+                  type="password"
+                  id="registerPassword"
+                  name="registerPassword"
+                  value={registerPassword}
+                  className="mt-2"
+                  onChange={(e) => setRegisterPassword(e.target.value)}
+                />
+              </div>
+              <Button type="submit" variant="outline">
+                Register
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </>
     );
+  }
 
   return (
     session && (

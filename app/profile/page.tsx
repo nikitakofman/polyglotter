@@ -22,15 +22,11 @@ import { useSubscriptionStore } from "@/store/store";
 function Profile() {
   const { data: session } = useSession();
 
+  console.log(session);
+
   const subscription = useSubscriptionStore((state) => state.subscription);
 
-  console.log(subscription);
-
-  console.log("this", session?.user.id);
-
   const [open, setOpen] = useState(false);
-
-  console.log(session?.user.email);
 
   const router = useRouter();
 

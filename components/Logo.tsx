@@ -6,7 +6,7 @@ import Image from "next/image";
 function Logo() {
   return (
     <Link href="/" prefetch={false} className="overflow-hidden">
-      <div className="flex items-center w-52 h-14 ">
+      <div className="flex items-center w-44 h-14 ">
         <AspectRatio
           ratio={16 / 9}
           className="flex items-center justify-center"
@@ -15,7 +15,7 @@ function Logo() {
             priority
             src={LogoImage}
             alt="logo"
-            className="w-48 dark:filter dark:invert"
+            className="w-40 dark:filter dark:invert"
           />
         </AspectRatio>
       </div>

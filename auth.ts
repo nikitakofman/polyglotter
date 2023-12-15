@@ -19,8 +19,9 @@ export const authOptions: NextAuthOptions = {
         id: { label: "Id", type: "id" },
       },
       async authorize(credentials, req) {
-        console.log(credentials);
         if (!credentials) return null;
+
+        console.log("pxjoij", credentials);
 
         const user = {
           //@ts-ignore
@@ -34,8 +35,6 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     session: async ({ session, token }) => {
-      console.log("thoxss", session.user);
-      console.log("bros", token);
       if (
         session?.user &&
         token.sub &&

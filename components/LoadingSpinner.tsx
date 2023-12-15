@@ -11,20 +11,19 @@ function LoadingSpinner() {
             fy=".3125"
             gradientTransform="scale(1.5)"
           >
-            <stop offset="0" stop-color="#EF9351"></stop>
-            <stop offset=".3" stop-color="#EF9351" stop-opacity=".9"></stop>
-            <stop offset=".6" stop-color="#EF9351" stop-opacity=".6"></stop>
-            <stop offset=".8" stop-color="#EF9351" stop-opacity=".3"></stop>
-            <stop offset="1" stop-color="#EF9351" stop-opacity="0"></stop>
+            <stop offset="0" stopColor="#EF9351"></stop>
+            <stop offset=".3" stopColor="#EF9351" stopOpacity=".9"></stop>
+            <stop offset=".6" stopColor="#EF9351" stopOpacity=".6"></stop>
+            <stop offset=".8" stopColor="#EF9351" stopOpacity=".3"></stop>
+            <stop offset="1" stopColor="#EF9351" stopOpacity="0"></stop>
           </radialGradient>
           <circle
-            transform-origin="center"
             fill="none"
             stroke="url(#a9)"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-dasharray="200 1000"
-            stroke-dashoffset="0"
+            strokeWidth="13"
+            strokeLinecap="round"
+            strokeDasharray="200 1000"
+            strokeDashoffset="0"
             cx="100"
             cy="100"
             r="70"
@@ -41,12 +40,11 @@ function LoadingSpinner() {
             ></animateTransform>
           </circle>
           <circle
-            transform-origin="center"
             fill="none"
             opacity=".2"
             stroke="#EF9351"
-            stroke-width="13"
-            stroke-linecap="round"
+            strokeWidth="13"
+            strokeLinecap="round"
             cx="100"
             cy="100"
             r="70"

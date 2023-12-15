@@ -65,8 +65,6 @@ export const chatMembersRef = (chatId: string) =>
     chatMembersConverter
   );
 
-console.log(chatMembersRef);
-
 export const chatMemberAdminRef = (chatId: string) =>
   query(
     collection(db, "chats", chatId, "members"),

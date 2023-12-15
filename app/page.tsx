@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  console.log(session);
+
   return (
     <main className="">
       <div className="isolate  dark:bg-gray-900">

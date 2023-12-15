@@ -12,13 +12,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
     chatMembersRef(chatId)
   );
 
-  console.log("this", members);
-
   const adminId = useAdminId({ chatId });
-
-  console.log(adminId);
-
-  console.log(error);
 
   // FIX ADMIN ID
 

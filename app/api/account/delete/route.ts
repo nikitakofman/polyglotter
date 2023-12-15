@@ -8,7 +8,6 @@ export async function DELETE(req: Request) {
 
     // Delete the user from Firebase Authentication
     await getAuth().deleteUser(userId);
-    console.log("Successfully deleted user from Authentication");
 
     // Reference to the user's document in Firestore
     const userRef = adminDb.collection("users").doc(userId);
