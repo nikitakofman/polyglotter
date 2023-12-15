@@ -60,7 +60,7 @@ function AdminControls({ chatId }: { chatId: string }) {
         </div>
         <div
           ref={menuRef} // Attach the ref to the menu div
-          className={`absolute mt-12 left-1  z-50 space-y-2 p-3 w-44 bg-white border dark:bg-[#020817] flex flex-col items-start rounded-md shadow-xl transition-opacity duration-300 ${
+          className={`absolute mt-12 sm:left-[47px] sm:top-[122px] top-[188px] right-[72px]  z-50 space-y-2 p-3 w-44 bg-white border dark:bg-[#020817] flex flex-col items-start rounded-md shadow-xl transition-opacity duration-300 ${
             isMenuOpen ? "opacity-100" : "opacity-0"
           }`}
           style={{ pointerEvents: isMenuOpen ? "auto" : "none" }}

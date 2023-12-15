@@ -76,7 +76,7 @@ function UserButton({ session }: { session: Session | null }) {
         await setDoc(userRef, {
           email: user.email,
           emailVerified: null,
-          image: "john",
+          image: "/useravatar.png",
           name: registerName,
           // Add other user information as needed
         }).then(() => {

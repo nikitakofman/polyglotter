@@ -66,7 +66,7 @@ function ChatMessages({
               >
                 {message.user.name.split(" ")[0]}
               </p>
-              <div className="flex space-x-2">
+              <div className="flex items-center space-x-2">
                 <p>{message.translated?.[language] || message.input}</p>
                 {!message.translated && <LoadingSpinner />}
               </div>

@@ -1,9 +1,6 @@
 function LoadingSpinner() {
   return (
-    <div
-      role="status"
-      className="flex items-center customminheight w-screen justify-center"
-    >
+    <div role="status" className="flex items-center justify-center">
       <div className="w-12">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
           <radialGradient

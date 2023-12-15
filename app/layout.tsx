@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <ClientProviders>
       <html lang="en">
-        <body className="flex flex-col min-h-screen">
+        <body className="min-h-screen">
           <FirebaseAuthProvider>
             <SubscriptionProvider>
               <ThemeProvider
