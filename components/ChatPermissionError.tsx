@@ -18,7 +18,9 @@ function ChatPermissionError() {
         </p>
       </AlertDescription>
       <Link href="/chat" replace>
-        <Button variant="destructive">Dismiss</Button>
+        <Button variant="destructive" className="mt-3">
+          Dismiss
+        </Button>
       </Link>
     </Alert>
   );

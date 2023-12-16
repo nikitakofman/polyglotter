@@ -76,6 +76,7 @@ function CreateChatButton({ isLarge }: { isLarge?: boolean }) {
       isAdmin: true,
       chatId: chatId,
       image: session.user.image || "",
+      name: session.user.name || "",
     })
       .then(() => {
         toast({

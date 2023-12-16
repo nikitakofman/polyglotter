@@ -42,8 +42,7 @@ import { auth } from "@/firebase";
 import { toast } from "./ui/use-toast";
 import { register } from "module";
 
-function UserButton({ session }: { session: Session | null }) {
-  // Subscription listener...
+function LoginPage({ session }: { session: Session | null }) {
   const subscription = useSubscriptionStore((state) => state.subscription);
 
   const router = useRouter();
@@ -180,28 +179,17 @@ function UserButton({ session }: { session: Session | null }) {
         const errorMessage = error.message;
       });
   };
-
-  // if (!session)
-  // return (
-  //   <Button
-  //     variant={"outline"}
-  //     onClick={() => signIn("google", { callbackUrl: "/chat" })}
-  //   >
-  //     Sign in
-  //   </Button>
-  // );
-
-  if (!session) {
-    return (
+  return (
+    <div>
       <>
         <Button variant={"outline"} onClick={openLoginDialog}>
           Sign in
         </Button>
 
-        {/* Login Dialog */}
-        <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
-          <DialogContent>
-            <p className="font-bold mt-3">Log in</p>
+        {/* Login Section */}
+        {isLoginDialogOpen && (
+          <div className="login-section">
+            <p className="mt-3 font-bold">Log in</p>
             <Button
               variant="outline"
               onClick={() =>
@@ -257,19 +245,15 @@ function UserButton({ session }: { session: Session | null }) {
                 </Button>
               </div>
             </form>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
 
-        {/* Registration Dialog */}
-        <Dialog
-          open={isRegisterDialogOpen}
-          onOpenChange={setIsRegisterDialogOpen}
-        >
-          <DialogContent>
-            <p className="font-bold mt-3">Create your account</p>
+        {/* Registration Section */}
+        {isRegisterDialogOpen && (
+          <div className="registration-section">
             <form onSubmit={handleRegister} className="space-y-8">
               <div>
-                <label htmlFor="username">Display name</label>
+                <label htmlFor="username">Name</label>
                 <Input
                   type="text"
                   id="username"
@@ -305,58 +289,11 @@ function UserButton({ session }: { session: Session | null }) {
                 Register
               </Button>
             </form>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
       </>
-    );
-  }
-
-  return (
-    session && (
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <UserAvatar
-            name={session.user?.name}
-            image={session.user?.image}
-            className=""
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {subscription === undefined && (
-            <DropdownMenuItem>
-              <LoadingSpinner />
-            </DropdownMenuItem>
-          )}
-
-          {subscription?.role === "pro" && (
-            <>
-              <DropdownMenuLabel className="text-xs flex items-center justify-center space-x-1 text-[#EF9351] animate-pulse">
-                <StarIcon fill="#EF9351" />
-                <p>PRO</p>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem>
-                <ManageAccountButton />
-              </DropdownMenuItem>
-            </>
-          )}
-          <DropdownMenuItem className="cursor-pointer">
-            <Link href="/profile">Profile</Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => signOutRe()}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
+    </div>
   );
 }
 
-export default UserButton;
+export default LoginPage;

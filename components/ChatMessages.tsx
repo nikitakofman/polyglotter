@@ -8,6 +8,10 @@ import { createRef, useEffect } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import UserAvatar from "./UserAvatar";
 import LoadingSpinner from "./LoadingSpinner";
+import { useRouter } from "next/navigation";
+import { chatMembersRef } from "@/lib/converters/ChatMembers";
+import { onSnapshot } from "firebase/firestore";
+import { toast } from "./ui/use-toast";
 
 function ChatMessages({
   chatId,
@@ -31,6 +35,27 @@ function ChatMessages({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, messagesEndRef]);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const membersRef = chatMembersRef(chatId);
+    const unsubscribe = onSnapshot(membersRef, (snapshot) => {
+      const isMember = snapshot.docs.some(
+        (doc) => doc.data().userId === session?.user.id
+      );
+      if (!isMember) {
+        toast({
+          title: "Admin removed you",
+          description: "You have been removed from this chat",
+          duration: 3000,
+        });
+        router.push("/chat"); // Replace with your redirection logic
+      }
+    });
+
+    return () => unsubscribe();
+  }, [chatId, session?.user.id, router]);
 
   return (
     <div className="pr-5 pl-5 pb-20 mt-3">

@@ -114,6 +114,7 @@ function InviteUser({ chatId }: { chatId: string }) {
         chatId: chatId,
         isAdmin: false,
         image: user.image || "",
+        name: user.name || "",
       })
         .then(() => {
           setOpen(false);

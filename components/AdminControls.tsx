@@ -7,13 +7,60 @@ import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import ChatMembersBadges from "./ChatMembersBadges";
+import useAdminId from "@/hooks/useAdminId";
+import { useSession } from "next-auth/react";
+import { adminDb } from "@/firebase-admin";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 
 function AdminControls({ chatId }: { chatId: string }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null); // Create a ref for the menu
+  const [open, setOpen] = useState(false);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const adminId = useAdminId({ chatId });
+  const { data: session } = useSession();
+
+  console.log(adminId);
+
+  console.log(adminId === session?.user.id);
+
+  console.log(chatId);
+
+  const removeUserFromChat = async () => {
+    const userId = session?.user.id;
+
+    console.log(userId);
+    if (!userId) return;
+
+    try {
+      const response = await fetch("/api/deleteUserFromChat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chatId, userId }),
+      });
+
+      if (response.ok) {
+        console.log("User successfully removed from chat");
+        router.push("/chat");
+      } else {
+        console.error("Failed to remove user from chat");
+      }
+    } catch (error) {
+      console.error("Error removing user from chat:", error);
+    }
   };
 
   // Close the menu when clicking outside of it
@@ -54,10 +101,41 @@ function AdminControls({ chatId }: { chatId: string }) {
                   <ChatMembersBadges chatId={chatId} />
                 </div>
               </div>
+              {adminId === session?.user.id ? (
+                <Button variant="outline" className="" onClick={toggleMenu}>
+                  Chat settings
+                </Button>
+              ) : (
+                <>
+                  <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="">
+                        Leave chat
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Are you sure?</DialogTitle>
+                        <DialogDescription>
+                          This will remove you from the chat.
+                        </DialogDescription>
+                      </DialogHeader>
 
-              <Button variant="outline" className="" onClick={toggleMenu}>
-                Chat settings
-              </Button>
+                      <div className="grid grid-cols-2 space-x-2">
+                        <Button variant="default" onClick={removeUserFromChat}>
+                          Leave
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </>
+              )}
             </div>
             {/* <X
               className=" text-black dark:text-white sm:mr-2 ml-3 hidden sm:flex  hover:text-gray-400 dark:hover:text-gray-300 cursor-pointer"

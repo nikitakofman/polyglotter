@@ -1,5 +1,7 @@
 import { authOptions } from "@/auth";
+import GetStarted from "@/components/GetStarted";
 import HowItWorks from "@/components/HowItWorks";
+import UserButton from "@/components/UserButton";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +26,7 @@ export default async function Home() {
         </div> */}
         <div className=" flex items-center justify-center bg-gradient-to-t from-[#EF9351]/40 to-bg-gray-900 customminheight">
           <div className="max-w-7xl flex flex-col items-center sm:flex-row">
-            <div className="w-full text-center">
+            <div className="w-full p-6 text-center">
               <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
                 Revolutionizing communication
               </h1>
@@ -36,12 +38,13 @@ export default async function Home() {
                 </span> */}
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
-                <Link
+                {/* <Link
                   href="/chat"
                   className="rounded-md bg-[#ef9351] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
                 >
                   Get started
-                </Link>
+                </Link> */}
+                <GetStarted session={session} />
                 <a
                   href="#howItWorks"
                   className="rounded-md  px-3.5 py-2.5 text-sm font-semibold text-black hover:text-gray-400 dark:hover:text-gray-400 dark:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"

@@ -42,7 +42,7 @@ import { auth } from "@/firebase";
 import { toast } from "./ui/use-toast";
 import { register } from "module";
 
-function UserButton({ session }: { session: Session | null }) {
+function GetStarted({ session }: { session: Session | null }) {
   // Subscription listener...
   const subscription = useSubscriptionStore((state) => state.subscription);
 
@@ -194,20 +194,22 @@ function UserButton({ session }: { session: Session | null }) {
   if (!session) {
     return (
       <>
-        <Button variant={"outline"} onClick={openLoginDialog}>
-          Sign in
-        </Button>
+        <div
+          className="rounded-md cursor-pointer bg-[#ef9351] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
+          onClick={openLoginDialog}
+        >
+          Get started
+        </div>
 
         {/* Login Dialog */}
         <Dialog open={isLoginDialogOpen} onOpenChange={setIsLoginDialogOpen}>
           <DialogContent>
-            <p className="font-bold mt-3">Log in</p>
+            <p className="mt-3 font-bold">Log in</p>
             <Button
               variant="outline"
               onClick={() =>
                 signIn("google", { callbackUrl: window.location.href })
               }
-              className=""
             >
               <Image
                 width={300}
@@ -267,9 +269,10 @@ function UserButton({ session }: { session: Session | null }) {
         >
           <DialogContent>
             <p className="font-bold mt-3">Create your account</p>
+
             <form onSubmit={handleRegister} className="space-y-8">
               <div>
-                <label htmlFor="username">Display name</label>
+                <label htmlFor="username">Name</label>
                 <Input
                   type="text"
                   id="username"
@@ -313,50 +316,14 @@ function UserButton({ session }: { session: Session | null }) {
 
   return (
     session && (
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <UserAvatar
-            name={session.user?.name}
-            image={session.user?.image}
-            className=""
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {subscription === undefined && (
-            <DropdownMenuItem>
-              <LoadingSpinner />
-            </DropdownMenuItem>
-          )}
-
-          {subscription?.role === "pro" && (
-            <>
-              <DropdownMenuLabel className="text-xs flex items-center justify-center space-x-1 text-[#EF9351] animate-pulse">
-                <StarIcon fill="#EF9351" />
-                <p>PRO</p>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem>
-                <ManageAccountButton />
-              </DropdownMenuItem>
-            </>
-          )}
-          <DropdownMenuItem className="cursor-pointer">
-            <Link href="/profile">Profile</Link>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => signOutRe()}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Link
+        href="/chat"
+        className="rounded-md bg-[#ef9351] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
+      >
+        Get started
+      </Link>
     )
   );
 }
 
-export default UserButton;
+export default GetStarted;

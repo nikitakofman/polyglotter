@@ -64,7 +64,7 @@ function DeleteChatButton({ chatId }: { chatId: string }) {
     session?.user.id === adminId && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <p className="text-black dark:text-white flex text-sm items-center cursor-pointer hover:text-red-400 dark:hover:text-red-400  w-full">
+          <p className="text-red-400 flex text-sm items-center cursor-pointer hover:text-red-300   w-full">
             <Trash2 className="w-4 mr-2" />
             Delete Chat
           </p>

@@ -19,10 +19,12 @@ export interface ChatMembers {
   isAdmin: boolean;
   chatId: string;
   image: string;
+  name: string;
 }
 
 const chatMembersConverter: FirestoreDataConverter<ChatMembers> = {
   toFirestore: function (member: ChatMembers): DocumentData {
+    console.log(member);
     return {
       userId: member.userId,
       email: member.email,
@@ -30,6 +32,7 @@ const chatMembersConverter: FirestoreDataConverter<ChatMembers> = {
       isAdmin: !!member.isAdmin,
       chatId: member.chatId,
       image: member.image,
+      name: member.name,
     };
   },
   fromFirestore: function (
@@ -38,6 +41,8 @@ const chatMembersConverter: FirestoreDataConverter<ChatMembers> = {
   ): ChatMembers {
     const data = snapshot.data(options);
 
+    console.log("thee", data);
+
     return {
       userId: snapshot.id,
       email: data.email,
@@ -45,6 +50,7 @@ const chatMembersConverter: FirestoreDataConverter<ChatMembers> = {
       isAdmin: data.isAdmin,
       chatId: data.chatId,
       image: data.image,
+      name: data.name,
     };
   },
 };
