@@ -42,10 +42,10 @@ function ChatInput({ chatId }: { chatId: string }) {
       input: "",
     },
   });
-
+  //@ts-ignore
   function useOutsideClick(ref, callback) {
     useEffect(() => {
-      function handleClickOutside(event) {
+      function handleClickOutside(event: any) {
         if (ref.current && !ref.current.contains(event.target)) {
           callback();
         }
@@ -137,7 +137,7 @@ function ChatInput({ chatId }: { chatId: string }) {
               <div className="absolute bottom-[-5px] left-[-50px] z-10 w-64 transform scale-[0.85]">
                 <Picker
                   data={data}
-                  onEmojiSelect={(emoji) => {
+                  onEmojiSelect={(emoji: any) => {
                     const currentValue = form.getValues("input");
                     form.setValue("input", currentValue + emoji.native);
                     setPickerVisible(false);
