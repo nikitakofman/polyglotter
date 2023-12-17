@@ -17,6 +17,10 @@ import { useRouter } from "next/navigation";
 import { useSubscriptionStore } from "@/store/store";
 import { useToast } from "./ui/use-toast";
 import { ToastAction } from "./ui/toast";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import { useEffect, useRef, useState } from "react";
+import { MdEmojiEmotions } from "react-icons/md";
 
 const formSchema = z.object({
   input: z.string().max(1000),
@@ -28,6 +32,8 @@ function ChatInput({ chatId }: { chatId: string }) {
 
   const { toast } = useToast();
 
+  const [isPickerVisible, setPickerVisible] = useState(false);
+
   const subscription = useSubscriptionStore((state) => state.subscription);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -36,6 +42,21 @@ function ChatInput({ chatId }: { chatId: string }) {
       input: "",
     },
   });
+
+  function useOutsideClick(ref, callback) {
+    useEffect(() => {
+      function handleClickOutside(event) {
+        if (ref.current && !ref.current.contains(event.target)) {
+          callback();
+        }
+      }
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [ref, callback]);
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const inputCopy = values.input.trim();
@@ -89,13 +110,43 @@ function ChatInput({ chatId }: { chatId: string }) {
     });
   }
 
+  const pickerRef = useRef(null);
+
+  useOutsideClick(pickerRef, () => {
+    if (isPickerVisible) {
+      setPickerVisible(false);
+    }
+  });
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50  ">
+    <div className="fixed bottom-0 left-0 right-0 z-50">
       <FormProvider {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex space-x-2 p-2  rounded-t-xl  mx-auto bg-white  dark:bg-slate-800"
+          className="flex items-center space-x-2 p-2 rounded-t-xl mx-auto bg-white dark:bg-slate-800"
         >
+          <button
+            type="button"
+            onClick={() => setPickerVisible(!isPickerVisible)}
+          >
+            <img src="/emoji.png" className="w-4 " />
+          </button>
+
+          {isPickerVisible && (
+            <div ref={pickerRef} className="relative">
+              <div className="absolute bottom-[-5px] left-[-50px] z-10 w-64 transform scale-[0.85]">
+                <Picker
+                  data={data}
+                  onEmojiSelect={(emoji) => {
+                    const currentValue = form.getValues("input");
+                    form.setValue("input", currentValue + emoji.native);
+                    setPickerVisible(false);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           <FormField
             control={form.control}
             name="input"
@@ -103,7 +154,7 @@ function ChatInput({ chatId }: { chatId: string }) {
               <FormItem className="flex-1">
                 <FormControl>
                   <Input
-                    className="border-2 dark:border-slate-600 bg-white dark:bg-slate-800 dark:placeholder:text-white/70"
+                    className="border-2 dark:border-slate-600 bg-white dark:bg-slate-800 text-[16px] dark:placeholder:text-white/70"
                     placeholder="Enter a message in ANY language..."
                     {...field}
                   />
