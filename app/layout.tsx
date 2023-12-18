@@ -7,6 +7,7 @@ import ClientProviders from "@/components/ClientProviders";
 import FirebaseAuthProvider from "@/components/FirebaseAuthProvider";
 import SubscriptionProvider from "@/components/SubscriptionProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { UserProvider } from "@/components/UserContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,26 +22,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClientProviders>
-      <html lang="en">
-        <body className="min-h-screen">
-          <FirebaseAuthProvider>
-            <SubscriptionProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <Header />
-                {children}
+    <UserProvider>
+      <ClientProviders>
+        <html lang="en">
+          <body className="min-h-screen">
+            <FirebaseAuthProvider>
+              <SubscriptionProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  <Header />
+                  {children}
 
-                <Toaster />
-              </ThemeProvider>
-            </SubscriptionProvider>
-          </FirebaseAuthProvider>
-        </body>
-      </html>
-    </ClientProviders>
+                  <Toaster />
+                </ThemeProvider>
+              </SubscriptionProvider>
+            </FirebaseAuthProvider>
+          </body>
+        </html>
+      </ClientProviders>
+    </UserProvider>
   );
 }

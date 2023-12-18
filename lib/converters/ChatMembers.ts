@@ -41,7 +41,7 @@ const chatMembersConverter: FirestoreDataConverter<ChatMembers> = {
   ): ChatMembers {
     const data = snapshot.data(options);
 
-    console.log("thee", data);
+    console.log("thee", data.image);
 
     return {
       userId: snapshot.id,

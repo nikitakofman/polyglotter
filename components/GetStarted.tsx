@@ -229,7 +229,7 @@ function GetStarted({ session }: { session: Session | null }) {
             </div>
             <form onSubmit={handleLogin} className="space-y-8">
               <div>
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">E-mail</label>
                 <Input
                   type="text"
                   id="email"
@@ -251,7 +251,7 @@ function GetStarted({ session }: { session: Session | null }) {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Button type="submit" variant="outline">
+                <Button type="submit" variant="default">
                   Log in
                 </Button>
                 <Button variant={"outline"} onClick={openRegisterDialog}>
@@ -304,7 +304,7 @@ function GetStarted({ session }: { session: Session | null }) {
                   onChange={(e) => setRegisterPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" variant="outline">
+              <Button type="submit" variant="default">
                 Register
               </Button>
             </form>

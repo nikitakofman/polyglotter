@@ -19,12 +19,60 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 
 function ChatMembersBadges({ chatId }: { chatId: string }) {
+  const [updatedMembers, setUpdatedMembers] = useState<ChatMembers[]>([]);
   const [members, loading, error] = useCollectionData<ChatMembers>(
     chatMembersRef(chatId)
   );
+
+  console.log(updatedMembers);
+
+  useEffect(() => {
+    const firestore = getFirestore();
+
+    // Create an object to keep track of the unsubscribe functions
+    const unsubscribes = {};
+
+    // Check if members are not null or undefined
+    if (members) {
+      members.forEach((member) => {
+        const userRef = doc(firestore, "users", member.userId);
+
+        // Set up the snapshot listener for each member
+        //@ts-ignore
+        unsubscribes[member.userId] = onSnapshot(userRef, (doc) => {
+          const updatedUser = doc.data();
+
+          // Update the member's image in the local state
+          setUpdatedMembers((prevMembers) => {
+            // Find the index of the member that needs to be updated
+            const index = prevMembers.findIndex(
+              (m) => m.userId === member.userId
+            );
+
+            // If the member is not in the array yet, add them
+            if (index === -1) {
+              return [...prevMembers, { ...member, image: updatedUser?.image }];
+            }
+
+            // If the member is already in the array, update their data
+            return prevMembers.map((m, i) =>
+              i === index ? { ...m, image: updatedUser?.image } : m
+            );
+          });
+        });
+      });
+    }
+
+    // Cleanup function to unsubscribe from all snapshot listeners
+    return () => {
+      //@ts-ignore
+      Object.values(unsubscribes).forEach((unsubscribe) => unsubscribe());
+    };
+  }, [members]);
 
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -68,7 +116,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
     !loading && (
       <div className=" rounded-xl ">
         <div className="flex flex-wrap  md:justify-start items-center gap-2 p-2">
-          {members?.map((member) => (
+          {updatedMembers.map((member) => (
             <Badge
               variant="outline"
               key={member.email}
@@ -78,7 +126,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
                 <UserAvatar
                   name={member.email}
                   image={member.image}
-                  className=""
+                  className="object-cover"
                 />
               </div>
               <div>

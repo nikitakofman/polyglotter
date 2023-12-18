@@ -24,8 +24,17 @@ export default async function Home() {
             }}
           />
         </div> */}
-        <div className=" flex items-center justify-center bg-gradient-to-t from-[#EF9351]/40 to-bg-gray-900 customminheight">
-          <div className="max-w-7xl flex flex-col items-center sm:flex-row">
+        <div className=" flex items-center flex-col justify-center bg-gradient-to-t from-[#EF9351]/40 to-bg-gray-900 customminheight">
+          <div className="w-full flex items-center justify-center ">
+            <Image
+              width={400}
+              height={100}
+              alt="Homepage intro picture"
+              src="/translate.png"
+              className="w-64 dark:invert"
+            />
+          </div>
+          <div className="w-full flex flex-col items-center sm:flex-row">
             <div className="w-full p-6 text-center">
               <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
                 Revolutionizing communication
@@ -45,12 +54,12 @@ export default async function Home() {
                   Get started
                 </Link> */}
                 <GetStarted session={session} />
-                <a
+                {/* <a
                   href="#howItWorks"
                   className="rounded-md  px-3.5 py-2.5 text-sm font-semibold text-black hover:text-gray-400 dark:hover:text-gray-400 dark:text-white  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
                 >
                   How it works
-                </a>
+                </a> */}
                 {/* <Link
                   href="/pricing"
                   className="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300"
@@ -59,22 +68,7 @@ export default async function Home() {
                 </Link> */}
               </div>
             </div>
-            <div className="mt-16 flex hidden items-center justify-center sm:mt-0 w-full">
-              <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                <Image
-                  unoptimized
-                  src="/demogif.png"
-                  alt="App screenshot"
-                  width={2432}
-                  height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-gray-900/10"
-                />
-              </div>
-            </div>
           </div>
-        </div>
-        <div id="howItWorks">
-          <HowItWorks />
         </div>
       </div>
     </main>

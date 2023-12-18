@@ -13,26 +13,27 @@ function UserAvatar({
 }) {
   return (
     <Avatar className={cn("bg-white text-black", className)}>
-      {image && (
+      {image ? (
+        // If image is present, display it
         <Image
           src={image}
           alt={name || "User name"}
           width={40}
           height={40}
-          className="rounded-full"
-          //   referrerPolicy="no-referrer"
+          className="rounded-full object-cover"
         />
+      ) : (
+        // If no image is present, display the initials
+        <AvatarFallback
+          delayMs={1000}
+          className="dark:bg-white dark:text-black text-lg"
+        >
+          {name
+            ?.split(" ")
+            .map((n) => n[0])
+            .join("")}
+        </AvatarFallback>
       )}
-      {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-      <AvatarFallback
-        delayMs={1000}
-        className="dark:bg-white dark:text-black text-lg"
-      >
-        {name
-          ?.split(" ")
-          .map((n) => n[0])
-          .join("")}
-      </AvatarFallback>
     </Avatar>
   );
 }

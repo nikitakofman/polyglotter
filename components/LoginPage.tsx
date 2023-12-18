@@ -237,7 +237,7 @@ function LoginPage({ session }: { session: Session | null }) {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Button type="submit" variant="outline">
+                <Button type="submit" variant="default">
                   Log in
                 </Button>
                 <Button variant={"outline"} onClick={openRegisterDialog}>

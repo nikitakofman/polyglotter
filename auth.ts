@@ -18,6 +18,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
         id: { label: "Id", type: "id" },
+        image: { label: "Image", type: "image" },
       },
       async authorize(credentials, req) {
         if (!credentials) return null;
@@ -35,6 +36,20 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    signIn: async ({ user, account, profile }) => {
+      if (user) {
+        // Add provider to the token object
+        user.provider = account.provider;
+      }
+      return true;
+    },
+    jwt: async ({ token, user }) => {
+      // Transfer provider to the token for use in session callback
+      if (user) {
+        token.provider = user.provider;
+      }
+      return token;
+    },
     session: async ({ session, token, user }) => {
       if (session?.user && token.sub) {
         session.user.id = token.sub;
@@ -45,6 +60,21 @@ export const authOptions: NextAuthOptions = {
           // Attempt to retrieve the user by UID
           try {
             firebaseUser = await adminAuth.getUser(token.sub);
+
+            const userRef = adminDb.collection("users").doc(token.sub);
+            const userDoc = await userRef.get();
+            if (userDoc.exists) {
+              // Assuming 'image' is the field where the image URL is stored
+              const customImageURL = userDoc.data()!.image;
+              if (customImageURL) {
+                session.user.image = customImageURL;
+              }
+            } else {
+              console.log(
+                "No user found in Firestore with the UID:",
+                token.sub
+              );
+            }
           } catch (error) {
             // If UID not found, check by email
             //@ts-ignore
@@ -82,11 +112,21 @@ export const authOptions: NextAuthOptions = {
           //@ts-ignore
           if (user && user.provider === "google") {
             //@ts-ignore
+            console.log("hello");
             session.user.emailVerified = true;
           } else {
             // Update session properties if needed
             //@ts-ignore
             session.user.emailVerified = firebaseUser.emailVerified;
+            console.log(firebaseUser);
+
+            const customImageProperty =
+              //@ts-ignore
+              firebaseUser.photoURL || firebaseUser["image"]; // Replace with your actual property name
+
+            if (customImageProperty) {
+              session.user.image = customImageProperty;
+            }
           }
 
           // Create a custom token for the Firebase user
@@ -96,7 +136,10 @@ export const authOptions: NextAuthOptions = {
           console.error("Error handling Firebase user:", error);
           // Handle the error appropriately
         }
+        session.user.provider = token.provider;
       }
+      console.log(session);
+
       return session;
     },
   },

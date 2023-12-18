@@ -41,8 +41,12 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { auth } from "@/firebase";
 import { toast } from "./ui/use-toast";
 import { register } from "module";
+import { useUser } from "./UserContext";
 
 function UserButton({ session }: { session: Session | null }) {
+  const { user, setUser } = useUser();
+
+  console.log(user);
   // Subscription listener...
   const subscription = useSubscriptionStore((state) => state.subscription);
 
@@ -109,6 +113,7 @@ function UserButton({ session }: { session: Session | null }) {
           emailVerified: false,
           image: "/useravatar.png",
           name: registerName,
+          isGoogle: false,
         }).then(() => {
           const auth = getAuth();
 
@@ -124,6 +129,7 @@ function UserButton({ session }: { session: Session | null }) {
                 email: registerEmail,
                 password: registerPassword,
                 id: user.uid,
+                isGoogle: false,
                 callbackUrl: "/chat",
               });
             })
@@ -227,7 +233,7 @@ function UserButton({ session }: { session: Session | null }) {
             </div>
             <form onSubmit={handleLogin} className="space-y-8">
               <div>
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">E-mail</label>
                 <Input
                   type="text"
                   id="email"
@@ -249,7 +255,7 @@ function UserButton({ session }: { session: Session | null }) {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Button type="submit" variant="outline">
+                <Button type="submit" variant="default">
                   Log in
                 </Button>
                 <Button variant={"outline"} onClick={openRegisterDialog}>
@@ -301,7 +307,7 @@ function UserButton({ session }: { session: Session | null }) {
                   onChange={(e) => setRegisterPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" variant="outline">
+              <Button type="submit" variant="default">
                 Register
               </Button>
             </form>
@@ -311,13 +317,16 @@ function UserButton({ session }: { session: Session | null }) {
     );
   }
 
+  console.log(session.user.image);
+
   return (
     session && (
       <DropdownMenu>
         <DropdownMenuTrigger>
           <UserAvatar
             name={session.user?.name}
-            image={session.user?.image}
+            // Replace session.user.image with user.image from context
+            image={user?.image || session.user?.image}
             className=""
           />
         </DropdownMenuTrigger>
