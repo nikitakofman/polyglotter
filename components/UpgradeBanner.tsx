@@ -17,9 +17,10 @@ function UpgradeBanner() {
   return (
     <div
       onClick={() => router.push("/register")}
-      className="bg-[#EF9352] cursor-pointer mr-3 inline-block text-transparent bg-clip-text"
+      className="bg-[#EF9352] hover:bg-orange-300 flex items-center flex-col cursor-pointer mr-3  text-transparent bg-clip-text"
     >
-      PRO
+      <p className=" text-[10px] leading-[0px] mt-2.5"> GET</p>
+      <p> PRO</p>
     </div>
   );
 }

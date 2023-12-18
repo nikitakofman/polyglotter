@@ -7,6 +7,8 @@ import UserAvatar from "./UserAvatar";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/store/store";
+import { useState, useEffect } from "react";
+import { doc, getFirestore, getDoc } from "firebase/firestore";
 
 function ChatListRow({ chatId }: { chatId: string }) {
   const [messages, loading, error] = useCollectionData<Message>(
@@ -16,11 +18,34 @@ function ChatListRow({ chatId }: { chatId: string }) {
 
   const router = useRouter();
 
+  const [userImages, setUserImages] = useState<{ [userId: string]: string }>(
+    {}
+  );
+  const firestore = getFirestore();
+
   const { data: session } = useSession();
+
+  useEffect(() => {
+    messages?.forEach(async (message) => {
+      if (message && !userImages[message.user.id]) {
+        const userRef = doc(firestore, "users", message.user.id);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setUserImages((prev) => ({
+            ...prev,
+            [message.user.id]: userData.image,
+          }));
+        }
+      }
+    });
+  }, [messages]);
 
   function prettyUUID(n = 4) {
     return chatId.substring(0, n);
   }
+
+  console.log(session?.user.image);
 
   const row = (message?: Message) => (
     <div
@@ -30,7 +55,8 @@ function ChatListRow({ chatId }: { chatId: string }) {
     >
       <UserAvatar
         name={message?.user.name || session?.user.name}
-        image={message?.user.image || session?.user.image}
+        //@ts-ignore
+        image={userImages[message?.user.id] || session?.user.image}
         className=""
       />
       <div className="flex-1">

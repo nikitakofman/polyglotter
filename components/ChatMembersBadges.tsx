@@ -21,6 +21,7 @@ import {
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { doc, onSnapshot, getFirestore } from "firebase/firestore";
+import { toast } from "./ui/use-toast";
 
 function ChatMembersBadges({ chatId }: { chatId: string }) {
   const [updatedMembers, setUpdatedMembers] = useState<ChatMembers[]>([]);
@@ -104,6 +105,10 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
 
       if (response.ok) {
         console.log("User successfully removed from chat");
+        toast({
+          title: "User removed",
+          description: "User was removed from chat.",
+        });
       } else {
         console.error("Failed to remove user from chat");
       }

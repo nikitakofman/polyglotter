@@ -1,5 +1,16 @@
-"use client";
-
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 import { toast } from "@/components/ui/use-toast";
 import {
   Dialog,
@@ -9,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { getServerSession } from "next-auth";
@@ -24,14 +35,23 @@ import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { useUser } from "@/components/UserContext";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 
-function Profile() {
+const SHEET_SIDES = ["top", "right", "bottom", "left"] as const;
+
+function EditProfile() {
+  const [open, setOpen] = useState(false);
+
+  const handleSheetTriggerClick = (e: any) => {
+    e.stopPropagation(); // Prevent the dropdown menu from closing
+    setOpenSheet(true); // Open the sheet
+  };
+
   const { data: session } = useSession();
 
   console.log("AAAAH", session);
 
   const subscription = useSubscriptionStore((state) => state.subscription);
 
-  const [open, setOpen] = useState(false);
+  const [openSheet, setOpenSheet] = useState(false);
 
   const [openPass, setOpenPass] = useState(false);
 
@@ -135,10 +155,17 @@ function Profile() {
           const userRef = doc(getFirestore(), "users", session.user.id);
           setDoc(userRef, { image: downloadURL }, { merge: true });
           console.log("Profile picture updated!");
+
           setUserData({ ...userData, image: downloadURL });
 
           const newUser: any = { ...session?.user, image: downloadURL };
           setUser(newUser);
+          toast({
+            title: "Success",
+            description: "Your profile picture has been updated!",
+            className: "bg-green-600 text-white",
+            duration: 3000,
+          });
         });
       })
       .catch((error) => {
@@ -198,133 +225,145 @@ function Profile() {
   };
 
   return (
-    <div className="isolate overflow-hidden dark:bg-gray-900">
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-10  flex flex-col items-center  text-center customminheight lg:px-8">
-        <div className="mx-auto  flex flex-col items-center max-w-4xl">
-          <h2 className="text-base mb-3 font-semibold leading-7  text-[#EF9351]">
-            Profile
-          </h2>
-          <p className="font-bold mb-2">{session?.user.name}</p>
-          <p className="font-bold">{session?.user.email}</p>
-          <div className="flex flex-col items-center p-3 mt-3 mb-3">
-            <div className="border-2  rounded-xl p-2 mb-5 flex flex-col items-center">
-              <p className="mt-2 font-semibold text-md ">Edit your photo</p>
-              <Image
-                width={200}
-                height={100}
-                alt="Profile pic"
-                className="w-28 h-28 mb-3 mt-3 object-cover border bg-white  rounded-full"
-                //@ts-ignore
-                src={userData?.image}
-              />
+    <Sheet open={openSheet}>
+      <SheetTrigger asChild>
+        <div onClick={handleSheetTriggerClick}>Profile</div>
+      </SheetTrigger>
+      <SheetContent side="left" onClick={(e) => e.stopPropagation()}>
+        <div className="isolate overflow-hidden dark:bg-gray-900">
+          <div className="mx-auto max-w-7xl pt-10 pb-10 flex items-center justify-center flex-col">
+            <div className="mx-auto flex items-center justify-center flex-col max-w-4xl">
+              <h2 className="text-base mb-3 font-semibold leading-7  text-[#EF9351]">
+                Profile
+              </h2>
+              <p className="font-bold mb-2">{session?.user.name}</p>
+              <p className="font-bold text-xs mb-3">{session?.user.email}</p>
+              <div className=" mt-3 mb-3">
+                <div className="border-2  rounded-xl p-2 mb-2 flex flex-col items-center">
+                  <p className="mt-2 font-semibold text-xs ">Profile picture</p>
+                  <Image
+                    width={200}
+                    height={100}
+                    alt="Profile pic"
+                    className="w-28 h-28 mb-3 mt-3 object-cover border bg-white  rounded-full"
+                    //@ts-ignore
+                    src={userData?.image}
+                  />
 
-              <input
-                type="file"
-                onChange={handleImageChange}
-                style={{ display: "none" }}
-                ref={inputRef}
-              />
-              <div className="flex">
-                <Button
-                  variant="ghost"
-                  className=" rounded-lgs"
-                  //@ts-ignore
-                  onClick={() => inputRef.current.click()}
-                >
-                  Replace
-                </Button>
-                <Button
-                  variant="ghost"
-                  className=" rounded-lg "
-                  //@ts-ignore
-                  onClick={() => deletePhoto()}
-                >
-                  Delete
-                </Button>
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    style={{ display: "none" }}
+                    ref={inputRef}
+                  />
+                  <div className="flex">
+                    <Button
+                      variant="ghost"
+                      className=" rounded-lgs"
+                      //@ts-ignore
+                      onClick={() => inputRef.current.click()}
+                    >
+                      Replace
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className=" rounded-lg "
+                      //@ts-ignore
+                      onClick={() => deletePhoto()}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+                {/* @ts-ignore */}
+                {session?.user.provider && (
+                  <Dialog open={openPass} onOpenChange={setOpenPass}>
+                    <DialogTrigger asChild>
+                      <Button variant="default" className="mt-3">
+                        Reset your password
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Confirm password reset</DialogTitle>
+                        <DialogDescription>
+                          This will send an email to {session?.user.email} with
+                          a link to reset your password.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="grid grid-cols-2 space-x-2">
+                        <Button variant="default" onClick={sendEmailReset}>
+                          Send
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setOpenPass(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </div>
             </div>
-            {/* @ts-ignore */}
-            {session?.user.provider && (
-              <Dialog open={openPass} onOpenChange={setOpenPass}>
+            <div className="relative flex  space-y-4 w-full max-w-[272px] flex-col mt-3">
+              {/* {subscription === undefined && (
+           
+          )} */}
+
+              {subscription?.role === "pro" && (
+                <form action={generatePortalLink}>
+                  <button
+                    type="submit"
+                    className="rounded-md bg-[#ef9351] px-3.5 py-2.5 text-sm w-full font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
+                  >
+                    Manage Billing
+                  </button>
+                </form>
+              )}
+
+              <Button variant="outline">Sign out</Button>
+              <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="default" className="mt-3">
-                    Reset your password
-                  </Button>
+                  <Button variant="link">Delete Account</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Confirm password reset</DialogTitle>
+                    <DialogTitle>Are you sure?</DialogTitle>
                     <DialogDescription>
-                      This will send an email to {session?.user.email} with a
-                      link to reset your password.
+                      This will delete your account permanently.
                     </DialogDescription>
                   </DialogHeader>
 
                   <div className="grid grid-cols-2 space-x-2">
-                    <Button variant="default" onClick={sendEmailReset}>
-                      Send
+                    <Button variant="destructive" onClick={handleDelete}>
+                      Delete
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setOpenPass(false)}
-                    >
+                    <Button variant="outline" onClick={() => setOpen(false)}>
                       Cancel
                     </Button>
                   </div>
                 </DialogContent>
               </Dialog>
-            )}
+            </div>
           </div>
-        </div>
-        <div className="relative flex  space-y-4 w-full max-w-[272px] flex-col mt-3">
-          {/* {subscription === undefined && (
-           
-          )} */}
 
-          {subscription?.role === "pro" && (
-            <form action={generatePortalLink}>
-              <button
-                type="submit"
-                className="rounded-md bg-[#ef9351] px-3.5 py-2.5 text-sm w-full font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
-              >
-                Manage Billing
-              </button>
-            </form>
-          )}
-
-          <Button variant="outline">Sign out</Button>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="link">Delete Account</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Are you sure?</DialogTitle>
-                <DialogDescription>
-                  This will delete your account permanently.
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="grid grid-cols-2 space-x-2">
-                <Button variant="destructive" onClick={handleDelete}>
-                  Delete
-                </Button>
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
-      {/* <div className="flow-root bg-white pb-24 sm:pb-32">
+          {/* <div className="flow-root bg-white pb-24 sm:pb-32">
       <div className="-mt-80">
         <PricingCards redirect={true} />
       </div>
     </div> */}
-    </div>
+        </div>
+        {/* <SheetClose asChild>
+          <div className="flex items-center justify-center ">
+            <Button onClick={() => setOpenSheet(false)}>Close</Button>
+          </div>
+        </SheetClose> */}
+      </SheetContent>
+    </Sheet>
   );
 }
 
-export default Profile;
+export default EditProfile;

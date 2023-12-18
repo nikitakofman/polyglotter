@@ -21,7 +21,7 @@ async function Header() {
           <Logo />{" "}
           <div className="sm:hidden flex items-center">
             <UpgradeBanner />
-            <UserButton session={session} />
+            <DarkModeToggle />
           </div>
         </div>
         <div className="flex-1 flex items-center w-full justify-between sm:justify-end ">
@@ -42,16 +42,17 @@ async function Header() {
                 <CreateChatButton />
               </>
             ) : (
-              <Link href="/pricing" className="hover:text-gray-400 pr-3">
-                Pricing
-              </Link>
+              // "<Link href="/pricing" className="hover:text-gray-400 pr-3">
+              //   Pricing
+              // </Link>
+              ""
             )}
           </div>
           <div className="flex items-center">
             <div className="hidden sm:flex mr-3">
-              <UserButton session={session} />
+              <DarkModeToggle />
             </div>
-            <DarkModeToggle />
+            <UserButton session={session} />
           </div>
         </div>
       </nav>

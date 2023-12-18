@@ -36,12 +36,15 @@ import {
   signInWithEmailAndPassword,
   getAuth,
   sendSignInLinkToEmail,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 import { auth } from "@/firebase";
 import { toast } from "./ui/use-toast";
 import { register } from "module";
 import { useUser } from "./UserContext";
+import { database } from "firebase-admin";
+import EditProfile from "./EditProfile";
 
 function UserButton({ session }: { session: Session | null }) {
   const { user, setUser } = useUser();
@@ -77,6 +80,8 @@ function UserButton({ session }: { session: Session | null }) {
   const [isRegisterDialogOpen, setIsRegisterDialogOpen] = useState(false);
 
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [emailForgot, setEmailForgot] = useState("");
 
   // Function to open login dialog
   const openLoginDialog = () => {
@@ -88,6 +93,11 @@ function UserButton({ session }: { session: Session | null }) {
   const openRegisterDialog = () => {
     setIsLoginDialogOpen(false); // Close login dialog if open
     setIsRegisterDialogOpen(true);
+  };
+
+  const openForgotPass = () => {
+    setIsLoginDialogOpen(false);
+    setIsForgotPassword(true);
   };
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -141,9 +151,29 @@ function UserButton({ session }: { session: Session | null }) {
         });
       })
       .catch((error) => {
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-        console.error("Full error:", error);
+        let errorMessage;
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "This email is already in use.";
+            break;
+          case "auth/missing-password":
+            errorMessage = "Missing password. Please enter your password.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Invalid email. Please check your email address.";
+            break;
+          case "auth/invalid-credential":
+            errorMessage = "Invalid credentials. Please try again.";
+            break;
+          default:
+            errorMessage = "An error occurred. Please try again.";
+        }
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+          duration: 2000,
+        });
       });
   };
 
@@ -171,19 +201,35 @@ function UserButton({ session }: { session: Session | null }) {
             callbackUrl: "/chat",
           });
         } else {
-          toast({
-            title: "Error",
-            description: "Invalid e-mail or password.",
-            variant: "destructive",
-            duration: 2000,
-          });
           // Handle the case where the user data does not exist in Firestore
           console.error("User data not found in Firestore");
         }
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        console.log(error);
+        let errorMessage;
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "This email is already in use.";
+            break;
+          case "auth/missing-password":
+            errorMessage = "Missing password. Please enter your password.";
+            break;
+          case "auth/invalid-email":
+            errorMessage = "Invalid email. Please check your email address.";
+            break;
+          case "auth/invalid-credential":
+            errorMessage = "Invalid credentials. Please try again.";
+            break;
+          default:
+            errorMessage = "An error occurred. Please try again.";
+        }
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+          duration: 2000,
+        });
       });
   };
 
@@ -196,6 +242,39 @@ function UserButton({ session }: { session: Session | null }) {
   //     Sign in
   //   </Button>
   // );
+
+  const handleForgotPassword = (e: any) => {
+    e.preventDefault(); // Prevent the default form submission
+    console.log(emailForgot); // Log the email value from state
+    if (emailForgot) {
+      sendPasswordResetEmail(auth, emailForgot)
+        .then(() => {
+          console.log("Email has been sent!");
+          toast({
+            title: "Success",
+            description:
+              "We've sent a password reset email to the address provided, if it's associated with an account.",
+            className: "bg-green-600 text-white",
+            duration: 3000,
+          });
+        })
+        .catch((error) => {
+          toast({
+            title: "Error",
+            description: "There has been an error.",
+            variant: "destructive",
+            duration: 2000,
+          });
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          // Handle error scenarios here, like showing an error message to the user
+        });
+    } else {
+      console.log("Email is undefined or empty");
+      // Handle the case where email is not provided
+    }
+  };
 
   if (!session) {
     return (
@@ -258,8 +337,53 @@ function UserButton({ session }: { session: Session | null }) {
                 <Button type="submit" variant="default">
                   Log in
                 </Button>
-                <Button variant={"outline"} onClick={openRegisterDialog}>
-                  Register
+                <p>No account yet ?</p>
+              </div>
+            </form>
+            <div className="w-full flex items-center justify-between">
+              <div>
+                <p
+                  className="font-light cursor-pointer hover:text-gray-300"
+                  onClick={openForgotPass}
+                >
+                  Forgot password?
+                </p>
+              </div>
+              <div className="flex flex-col">
+                <div
+                  className="rounded-md cursor-pointer bg-[#ef9351] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
+                  onClick={openRegisterDialog}
+                >
+                  Create account
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isForgotPassword} onOpenChange={setIsForgotPassword}>
+          <DialogContent>
+            <p className="font-bold mt-3">Forgot your password ?</p>
+
+            <form
+              onSubmit={(e) => handleForgotPassword(e)}
+              className="space-y-8"
+            >
+              <div>
+                <label htmlFor="email">Enter your e-mail</label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={emailForgot}
+                  className="mt-2"
+                  onChange={(e) => setEmailForgot(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Button type="submit" variant="default">
+                  Send
                 </Button>
               </div>
             </form>
@@ -327,7 +451,7 @@ function UserButton({ session }: { session: Session | null }) {
             name={session.user?.name}
             // Replace session.user.image with user.image from context
             image={user?.image || session.user?.image}
-            className=""
+            className="border"
           />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -353,7 +477,8 @@ function UserButton({ session }: { session: Session | null }) {
             </>
           )}
           <DropdownMenuItem className="cursor-pointer">
-            <Link href="/profile">Profile</Link>
+            {/* <div onClick={openProfile}>Profile</div> */}
+            <EditProfile />
           </DropdownMenuItem>
 
           <DropdownMenuItem

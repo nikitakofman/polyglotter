@@ -1,6 +1,9 @@
 import { CheckIcon } from "lucide-react";
 import Link from "next/link";
 import CheckoutButton from "./CheckoutButton";
+import GetStarted from "./GetStarted";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
 
 const tiers = [
   {
@@ -35,7 +38,9 @@ const tiers = [
   },
 ];
 
-function PricingCards({ redirect }: { redirect: boolean }) {
+async function PricingCards({ redirect }: { redirect: boolean }) {
+  const session = await getServerSession(authOptions);
+
   return (
     <div>
       <div className="mx-auto grid max-w-md grid-cols-1 gap-8 lg:max-w-4xl lg:grid-cols-2">
@@ -86,12 +91,15 @@ function PricingCards({ redirect }: { redirect: boolean }) {
               </ul>
             </div>
             {redirect ? (
-              <Link
-                href="/register"
-                className="mt-8 block rounded-md bg-[#EF9352] px-3.5 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#FE9C50] focus:visible:outline focus:visible:outline-2 focus:visible:outline-offset-2 focus:visible:outline-[#EF9351] cursor-pointer disabled:opacity-80"
-              >
-                Get Started Today
-              </Link>
+              // <Link
+              //   href="/register"
+              //   className="mt-8 block rounded-md bg-[#EF9352] px-3.5 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#FE9C50] focus:visible:outline focus:visible:outline-2 focus:visible:outline-offset-2 focus:visible:outline-[#EF9351] cursor-pointer disabled:opacity-80"
+              // >
+              //   Get Started Today
+              // </Link>
+              <div className="mt-8">
+                <GetStarted session={session} />
+              </div>
             ) : (
               tier.id && <CheckoutButton />
             )}
