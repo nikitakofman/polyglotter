@@ -147,6 +147,7 @@ function Profile() {
   };
   const sendEmailReset = () => {
     const auth = getAuth();
+    //@ts-ignore
     sendPasswordResetEmail(auth, session?.user.email)
       .then(() => {
         console.log("password reset email sent");

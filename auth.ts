@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
     signIn: async ({ user, account, profile }) => {
       if (user) {
         // Add provider to the token object
+        //@ts-ignore
         user.provider = account.provider;
       }
       return true;
@@ -46,6 +47,7 @@ export const authOptions: NextAuthOptions = {
     jwt: async ({ token, user }) => {
       // Transfer provider to the token for use in session callback
       if (user) {
+        //@ts-ignore
         token.provider = user.provider;
       }
       return token;
@@ -112,7 +114,7 @@ export const authOptions: NextAuthOptions = {
           //@ts-ignore
           if (user && user.provider === "google") {
             //@ts-ignore
-            console.log("hello");
+
             session.user.emailVerified = true;
           } else {
             // Update session properties if needed
@@ -136,6 +138,7 @@ export const authOptions: NextAuthOptions = {
           console.error("Error handling Firebase user:", error);
           // Handle the error appropriately
         }
+        //@ts-ignore
         session.user.provider = token.provider;
       }
       console.log(session);
