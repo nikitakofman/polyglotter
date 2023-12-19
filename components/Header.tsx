@@ -4,14 +4,21 @@ import DarkModeToggle from "./DarkModeToggle";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import Link from "next/link";
-import { MessagesSquareIcon } from "lucide-react";
+import {
+  MessageSquarePlus,
+  MessageSquarePlusIcon,
+  MessagesSquareIcon,
+} from "lucide-react";
 import CreateChatButton from "./CreateChatButton";
 import UpgradeBanner from "./UpgradeBanner";
 import LanguageSelect from "./LanguageSelect";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 async function Header() {
-  const session = await getServerSession(authOptions);
-  console.log("this", session);
+  const session: any = await getServerSession(authOptions);
+  console.log("this", session?.user.emailVerified);
 
   return (
     <header className="sticky w-full top-0 z-50 bg-white border-b-2 dark:bg-gray-900">
@@ -35,12 +42,37 @@ async function Header() {
               <UpgradeBanner />
             </div>
             {session ? (
-              <>
-                <Link href={"/chat"} prefetch={false}>
-                  <MessagesSquareIcon className="text-black dark:text-white" />
-                </Link>
-                <CreateChatButton />
-              </>
+              session?.user.emailVerified ? (
+                <>
+                  <Link href={"/chat"} prefetch={false}>
+                    <MessagesSquareIcon className="text-black dark:text-white" />
+                  </Link>
+                  <CreateChatButton />
+                </>
+              ) : (
+                <>
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <MessagesSquareIcon className="text-gray-500 mr-2 cursor-not-allowed " />
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-full">
+                      <p className="text-[14px]">
+                        Verify your e-mail to start chatting!
+                      </p>
+                    </HoverCardContent>
+                  </HoverCard>
+                  <HoverCard>
+                    <HoverCardTrigger asChild>
+                      <MessageSquarePlusIcon className="text-gray-500 mr-2 cursor-not-allowed " />
+                    </HoverCardTrigger>
+                    <HoverCardContent className="w-full">
+                      <p className="text-[14px]">
+                        Verify your e-mail to start chatting!
+                      </p>
+                    </HoverCardContent>
+                  </HoverCard>
+                </>
+              )
             ) : (
               // "<Link href="/pricing" className="hover:text-gray-400 pr-3">
               //   Pricing
