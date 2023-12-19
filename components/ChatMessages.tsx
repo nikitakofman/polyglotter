@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { chatMembersRef } from "@/lib/converters/ChatMembers";
 import { onSnapshot } from "firebase/firestore";
 import { toast } from "./ui/use-toast";
+import LoadingSpinnerWhite from "./LoadingSpinnerWhite";
 
 function ChatMessages({
   chatId,
@@ -102,7 +103,7 @@ function ChatMessages({
               )}
               <div className="flex items-center space-x-2">
                 <p>{message.translated?.[language] || message.input}</p>
-                {hasText && !message.translated && <LoadingSpinner />}
+                {hasText && !message.translated && <LoadingSpinnerWhite />}
               </div>
             </div>
             <UserAvatar

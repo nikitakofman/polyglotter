@@ -22,7 +22,12 @@ import Picker from "@emoji-mart/react";
 import { useEffect, useRef, useState } from "react";
 import { MdEmojiEmotions } from "react-icons/md";
 import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
-import { Image, MinusCircle, X } from "lucide-react";
+import { Image, ImageOff, MinusCircle, X } from "lucide-react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const formSchema = z.object({
   input: z.string().max(1000),
@@ -93,23 +98,23 @@ function ChatInput({ chatId }: { chatId: string }) {
     const isPro =
       subscription?.role === "pro" && subscription.status === "active";
 
-    if (!isPro && messagesCount >= 20) {
-      toast({
-        title: "Free plan limit exceeded",
-        description:
-          "You've exceeded the FREE plan limit of 20 messages per chat. Upgrade to PRO for unlimited chat messages!",
-        variant: "destructive",
-        action: (
-          <ToastAction
-            altText="Upgrade"
-            onClick={() => router.push("/register")}
-          >
-            Upgrade to PRO
-          </ToastAction>
-        ),
-      });
-      return;
-    }
+    // if (!isPro && messagesCount >= 20) {
+    //   toast({
+    //     title: "Free plan limit exceeded",
+    //     description:
+    //       "You've exceeded the FREE plan limit of 20 messages per chat. Upgrade to PRO for unlimited chat messages!",
+    //     variant: "destructive",
+    //     action: (
+    //       <ToastAction
+    //         altText="Upgrade"
+    //         onClick={() => router.push("/register")}
+    //       >
+    //         Upgrade to PRO
+    //       </ToastAction>
+    //     ),
+    //   });
+    //   return;
+    // }
 
     const userToStore = {
       id: session.user.id,
@@ -254,7 +259,7 @@ function ChatInput({ chatId }: { chatId: string }) {
             type="button"
             onClick={() => setPickerVisible(!isPickerVisible)}
           >
-            <img src="/emoji.png" className="w-4 mr-2" />
+            <img src="/emoji.png" className="w-4 ml-1 mr-2" />
           </button>
           {/* <button type="button" onClick={() => fileInputRef.current.click()}>
             Upload Image
@@ -281,18 +286,34 @@ function ChatInput({ chatId }: { chatId: string }) {
             ref={fileInputRef}
           />
           {/*@ts-ignore*/}
-          {isPro && (
+          {isPro ? (
             <Image
               className="cursor-pointer hover:text-gray-400 mr-2"
               onClick={() => fileInputRef.current.click()}
             />
+          ) : (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <ImageOff className="mr-2 text-gray-500 cursor-not-allowed" />
+              </HoverCardTrigger>
+              <HoverCardContent className="w-full">
+                <Button
+                  variant="secondary"
+                  className=""
+                  onClick={() => router.push("/register")}
+                >
+                  Upgrade to <p className="text-[#EF9352] mx-1">PRO</p> to send
+                  media
+                </Button>
+              </HoverCardContent>
+            </HoverCard>
           )}
 
           <FormField
             control={form.control}
             name="input"
             render={({ field }) => (
-              <FormItem className="flex-1">
+              <FormItem className="flex-1 mr-2">
                 <FormControl>
                   <Input
                     className="border-2 dark:border-slate-600 bg-white dark:bg-slate-800 text-[16px] dark:placeholder:text-white/70"

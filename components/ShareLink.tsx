@@ -45,7 +45,7 @@ function ShareLink({
       toast({
         title: "Copied Successfully",
         description:
-          "Share this to the person you want to chat with! (NOTE: They must be added to the Chat to access it!)",
+          "Share this to the person you want to chat with! They must be added to the chat to access it.",
         className: "bg-green-600 text-white",
       });
     } catch (err) {

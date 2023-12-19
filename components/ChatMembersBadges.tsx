@@ -21,7 +21,14 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { doc, onSnapshot, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  getFirestore,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 import { toast } from "./ui/use-toast";
 
 function ChatMembersBadges({ chatId }: { chatId: string }) {
@@ -29,6 +36,24 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
   const [members, loading, error] = useCollectionData<ChatMembers>(
     chatMembersRef(chatId)
   );
+
+  // useEffect(() => {
+  //   const firestore = getFirestore();
+  //   const membersRef = collection(firestore, "chats"); // Replace 'your_collection_name' with the actual name of your collection
+
+  //   // If you need to query specific documents, use the query function
+  //   const q = query(membersRef, where("chatId", "==", chatId));
+
+  //   const unsubscribe = onSnapshot(q, (snapshot) => {
+  //     const membersData = snapshot.docs.map((doc) => ({
+  //       ...doc.data(),
+  //       id: doc.id,
+  //     }));
+  //     setUpdatedMembers(membersData);
+  //   });
+
+  //   return () => unsubscribe();
+  // }, [chatId]);
 
   console.log("wbu", updatedMembers);
 

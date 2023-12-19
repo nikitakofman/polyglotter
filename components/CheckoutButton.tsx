@@ -7,6 +7,7 @@ import { useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 import { useSubscriptionStore } from "@/store/store";
 import ManageAccountButton from "./ManageAccountButton";
+import LoadingSpinnerWhite from "./LoadingSpinnerWhite";
 
 function CheckoutButton() {
   const { data: session } = useSession();
@@ -69,7 +70,7 @@ function CheckoutButton() {
         {isSubscribed ? (
           <ManageAccountButton />
         ) : isLoadingSubscription || loading ? (
-          <LoadingSpinner />
+          <LoadingSpinnerWhite />
         ) : (
           <button onClick={() => createCheckoutSession()}>Sign up</button>
         )}
