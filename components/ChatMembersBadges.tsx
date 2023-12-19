@@ -126,7 +126,8 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
 
     toast({
       title: "User reported",
-      description: `${member.name} has been reported to our team. Our team will review his activity and take appropriate action.`,
+      //@ts-ignore
+      description: `${member.name} has been reported to our team. We will will review his activity and take appropriate action.`,
       duration: 3000,
     });
   };
