@@ -74,26 +74,35 @@ function ChatMessages({
       )}
       {messages?.map((message) => {
         const isSender = message.user.id === session?.user.id;
+        const hasText = message.input && message.input.trim().length > 0; // Check if there's text content
 
         return (
           <div key={message.id} className="flex my-2 items-end">
             <div
-              className={`flex flex-col relative space-y-2 p-4 w-fit line-clamp-1 mx-2 rounded-lg ${
+              className={`flex flex-col relative space-y-2 p-4 w-fit mx-2 rounded-lg ${
                 isSender
                   ? "ml-auto border border-[#EF9351]/30 text-black dark:text-white rounded-br-none"
-                  : "bg-gray-100 dark:text-gray-100 dark:bg-slate-700 rounded-bl-none"
+                  : "bg-gray-100 dark:bg-slate-700 dark:text-gray-100 rounded-bl-none"
               }`}
             >
               <p
-                className={`text-xs italic font-extralight line-clamp-1 ${
+                className={`text-xs italic font-extralight ${
                   isSender ? "text-right" : "text-left"
                 }`}
               >
                 {message.user.name.split(" ")[0]}
               </p>
+              {message.imageUrl && message.imageUrl !== "undefined" && (
+                <img
+                  src={message.imageUrl}
+                  alt="Uploaded"
+                  style={{ maxWidth: "200px", maxHeight: "200px" }}
+                  className="object-cover"
+                />
+              )}
               <div className="flex items-center space-x-2">
                 <p>{message.translated?.[language] || message.input}</p>
-                {!message.translated && <LoadingSpinner />}
+                {hasText && !message.translated && <LoadingSpinner />}
               </div>
             </div>
             <UserAvatar

@@ -180,6 +180,12 @@ function EditProfile() {
     sendPasswordResetEmail(auth, session?.user.email)
       .then(() => {
         console.log("password reset email sent");
+        toast({
+          title: "Success",
+          description: `Password reset e-mail sent to ${session?.user.email}.`,
+          className: "bg-green-600 text-white",
+          duration: 2000,
+        });
       })
       .catch((error) => {
         const errorCode = error.code;

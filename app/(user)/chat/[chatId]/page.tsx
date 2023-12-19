@@ -23,6 +23,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import ResendEmail from "@/components/ResendEmail";
 
 type Props = {
   params: {
@@ -32,6 +33,8 @@ type Props = {
 
 async function ChatPage({ params: { chatId } }: Props) {
   const session = await getServerSession(authOptions);
+
+  console.log(session);
 
   const initialMessages = (await getDocs(sortedMessagesRef(chatId))).docs.map(
     (doc) => doc.data()
@@ -45,16 +48,26 @@ async function ChatPage({ params: { chatId } }: Props) {
 
   return (
     <>
-      <AdminControls chatId={chatId} />
-
-      <div className="flex-1">
-        <ChatMessages
-          chatId={chatId}
-          session={session}
-          initialMessages={initialMessages}
-        />
-      </div>
-      <ChatInput chatId={chatId} />
+      {/*@ts-ignore*/}
+      {session?.user.emailVerified ? (
+        <>
+          <AdminControls chatId={chatId} />
+          <div className="flex-1">
+            <ChatMessages
+              chatId={chatId}
+              session={session}
+              initialMessages={initialMessages}
+            />
+          </div>
+          <ChatInput chatId={chatId} />{" "}
+        </>
+      ) : (
+        <div className="w-screen h-screen flex flex-col mt-10 p-10 text-center">
+          Please verify your e-mail. We have sent an activation link to:
+          <p className="font-bold mt-5 mb-5">{session?.user.email}</p>
+          <ResendEmail />
+        </div>
+      )}
     </>
   );
 }

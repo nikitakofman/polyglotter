@@ -14,6 +14,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -29,7 +30,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
     chatMembersRef(chatId)
   );
 
-  console.log(updatedMembers);
+  console.log("wbu", updatedMembers);
 
   useEffect(() => {
     const firestore = getFirestore();
@@ -109,12 +110,25 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
           title: "User removed",
           description: "User was removed from chat.",
         });
+        setUpdatedMembers((prevMembers) =>
+          prevMembers.filter((member) => member.userId !== memberId)
+        );
       } else {
         console.error("Failed to remove user from chat");
       }
     } catch (error) {
       console.error("Error removing user from chat:", error);
     }
+  };
+
+  const sendReport = (member: {}) => {
+    console.log(member);
+
+    toast({
+      title: "User reported",
+      description: `${member.name} has been reported to our team. Our team will review his activity and take appropriate action.`,
+      duration: 3000,
+    });
   };
 
   return (
@@ -127,13 +141,55 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
               key={member.email}
               className="h-14 p-5 pl-2 pr-5 flex space-x-2"
             >
-              <div className="flex items-center space-x-2">
-                <UserAvatar
-                  name={member.email}
-                  image={member.image}
-                  className="object-cover"
-                />
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <div className="flex items-center space-x-2">
+                    <UserAvatar
+                      name={member.email}
+                      image={member.image}
+                      className="object-cover cursor-pointer hover:opacity-50"
+                    />
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>
+                      <div className="flex items-center flex-col justify-center">
+                        {member.name}{" "}
+                        <p className="text-xs text-gray-400">
+                          #{member.userId.substring(member.userId.length - 4)}
+                        </p>
+                      </div>
+                    </DialogTitle>
+                    <DialogDescription>
+                      <div className="flex items-center flex-col">
+                        <img
+                          src={member.image}
+                          className="w-28 mt-2 h-28 rounded-full"
+                        />
+                      </div>
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <DialogFooter>
+                    {member.userId !== session?.user.id ? (
+                      <div className="flex items-center w-full justify-center">
+                        <Button
+                          type="submit"
+                          variant="destructive"
+                          className="w-[109.42px]"
+                          onClick={() => sendReport(member)}
+                        >
+                          Report user
+                        </Button>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               <div>
                 <p>{member.name}</p>
                 {member.userId === adminId && (

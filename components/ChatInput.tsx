@@ -21,6 +21,8 @@ import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { useEffect, useRef, useState } from "react";
 import { MdEmojiEmotions } from "react-icons/md";
+import { ref, uploadBytes, getDownloadURL, getStorage } from "firebase/storage";
+import { Image, MinusCircle, X } from "lucide-react";
 
 const formSchema = z.object({
   input: z.string().max(1000),
@@ -30,11 +32,20 @@ function ChatInput({ chatId }: { chatId: string }) {
   const { data: session } = useSession();
   const router = useRouter();
 
+  const [imagePreviewURL, setImagePreviewURL] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const storage = getStorage();
+
   const { toast } = useToast();
 
   const [isPickerVisible, setPickerVisible] = useState(false);
 
+  const [imageURL, setImageURL] = useState(null);
+
   const subscription = useSubscriptionStore((state) => state.subscription);
+
+  console.log(subscription);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,11 +69,18 @@ function ChatInput({ chatId }: { chatId: string }) {
     }, [ref, callback]);
   }
 
+  console.log(imageURL);
+
+  const isPro =
+    subscription?.role === "pro" && subscription.status === "active";
+
+  console.log(isPro);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const inputCopy = values.input.trim();
     form.reset();
 
-    if (values.input.length === 0) {
+    if (!inputCopy && !selectedFile) {
       return;
     }
 
@@ -70,14 +88,12 @@ function ChatInput({ chatId }: { chatId: string }) {
       return;
     }
 
-    const messages = (await getDocs(limitedMessagesRef(chatId))).docs.map(
-      (doc) => doc.data()
-    ).length;
-
+    const messagesCount = (await getDocs(limitedMessagesRef(chatId))).docs
+      .length;
     const isPro =
       subscription?.role === "pro" && subscription.status === "active";
 
-    if (!isPro && messages >= 20) {
+    if (!isPro && messagesCount >= 20) {
       toast({
         title: "Free plan limit exceeded",
         description:
@@ -92,22 +108,85 @@ function ChatInput({ chatId }: { chatId: string }) {
           </ToastAction>
         ),
       });
-
       return;
     }
 
-    const userToStore: User = {
-      id: session?.user.id!,
-      name: session?.user.name!,
-      email: session?.user.email!,
-      image: session?.user.image || "",
+    const userToStore = {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      image: session.user.image || "",
     };
 
-    addDoc(messagesRef(chatId), {
-      input: inputCopy,
-      timestamp: serverTimestamp(),
-      user: userToStore,
-    });
+    // Handling image upload if a file is selected
+    if (selectedFile) {
+      const storageRef = ref(
+        storage,
+        //@ts-ignore
+        `chat_images/${chatId}/${Date.now()}_${selectedFile.name}`
+      );
+
+      uploadBytes(storageRef, selectedFile)
+        .then((snapshot) => {
+          getDownloadURL(snapshot.ref)
+            .then((downloadURL) => {
+              // Create a new message with the image URL
+
+              type WithImage = {
+                input: string;
+                timestamp: any;
+                user: {};
+                imageUrl: string;
+              };
+
+              const newMessageWithImage: WithImage = {
+                input: inputCopy,
+                timestamp: serverTimestamp(),
+                user: userToStore,
+                imageUrl: downloadURL,
+              };
+
+              // Send the message with the image
+              addDoc(messagesRef(chatId), newMessageWithImage)
+                .then(() => {
+                  // Handle successful message sending
+                })
+                .catch((error) => {
+                  console.error("Error sending message with image: ", error);
+                  // Handle the error
+                });
+            })
+            .catch((error) => {
+              console.error("Error getting download URL: ", error);
+              // Handle the error
+            });
+        })
+        .catch((error) => {
+          console.error("Error uploading file: ", error);
+          // Handle the error
+        });
+    } else {
+      // Handling text-only message sending
+      const newMessageWithoutImage: any = {
+        input: inputCopy,
+        timestamp: serverTimestamp(),
+        user: userToStore,
+        imageUrl: "undefined",
+      };
+
+      addDoc(messagesRef(chatId), newMessageWithoutImage)
+        .then(() => {
+          // Handle successful message sending
+        })
+        .catch((error) => {
+          console.error("Error sending text-only message: ", error);
+          // Handle the error
+        });
+    }
+
+    // Resetting the states
+    setSelectedFile(null);
+    setImagePreviewURL(null);
   }
 
   const pickerRef = useRef(null);
@@ -118,20 +197,68 @@ function ChatInput({ chatId }: { chatId: string }) {
     }
   });
 
+  const fileInputRef: any = useRef(null);
+
+  const handleImageUpload = (event: any) => {
+    const file = event.target.files[0];
+    if (file) {
+      // Create a local URL for preview
+      const localPreviewURL: any = URL.createObjectURL(file);
+      setImagePreviewURL(localPreviewURL);
+      setSelectedFile(file); // Store the file object
+    } else {
+      console.error("No file selected.");
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="ml-3 mb-3 flex flex-col relative">
+        {imagePreviewURL && (
+          <div>
+            <button
+              onClick={() => {
+                setImagePreviewURL(null);
+                {
+                  /*@ts-ignore*/
+                }
+                fileInputRef.current.value = null; // Reset file input
+              }}
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                zIndex: 10,
+              }}
+              className="bg-black/50 w-[75px] "
+            >
+              <p className="text-[13px] text-gray-300 hover:text-white">
+                Remove
+              </p>
+            </button>
+            <img
+              src={imagePreviewURL}
+              alt="Preview"
+              style={{ maxWidth: "100px", maxHeight: "100px" }}
+              className=""
+            />
+          </div>
+        )}
+      </div>
       <FormProvider {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex items-center space-x-2 p-2 rounded-t-xl mx-auto bg-white dark:bg-slate-800"
+          className="flex items-center  p-2 rounded-t-xl mx-auto bg-white dark:bg-slate-800"
         >
           <button
             type="button"
             onClick={() => setPickerVisible(!isPickerVisible)}
           >
-            <img src="/emoji.png" className="w-4 " />
+            <img src="/emoji.png" className="w-4 mr-2" />
           </button>
-
+          {/* <button type="button" onClick={() => fileInputRef.current.click()}>
+            Upload Image
+          </button> */}
           {isPickerVisible && (
             <div ref={pickerRef} className="relative">
               <div className="absolute bottom-[-5px] left-[-50px] z-10 w-64 transform scale-[0.85]">
@@ -145,6 +272,20 @@ function ChatInput({ chatId }: { chatId: string }) {
                 />
               </div>
             </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+            ref={fileInputRef}
+          />
+          {/*@ts-ignore*/}
+          {isPro && (
+            <Image
+              className="cursor-pointer hover:text-gray-400 mr-2"
+              onClick={() => fileInputRef.current.click()}
+            />
           )}
 
           <FormField
@@ -163,6 +304,7 @@ function ChatInput({ chatId }: { chatId: string }) {
               </FormItem>
             )}
           />
+
           <Button type="submit" className="bg-[#EF9351] text-white">
             Send
           </Button>
