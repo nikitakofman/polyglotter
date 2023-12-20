@@ -38,11 +38,11 @@ async function PricingCards({ redirect }: { redirect: boolean }) {
 
   return (
     <div>
-      <div className="mx-auto grid max-w-md grid-cols-1 gap-8 lg:max-w-4xl lg:grid-cols-2">
+      <div className="mx-auto grid max-w-md grid-cols-1 dark:text-white   gap-8 lg:max-w-4xl lg:grid-cols-2">
         {tiers.map((tier) => (
           <div
             key={tier.id}
-            className="flex flex-col justify-between rounded-3xl bg-white shadow-md p-8 border sm:p-10"
+            className="flex flex-col justify-between rounded-3xl bg-[#EF9351]/10 m-4   p-8 sm:p-10"
           >
             <div>
               <h3
@@ -51,28 +51,28 @@ async function PricingCards({ redirect }: { redirect: boolean }) {
               >
                 {tier.name}
               </h3>
-              <div className="mt-4 flex items-baseline gap-x-2">
+              <div className="mt-4 flex dark:text-white items-baseline gap-x-2">
                 {tier.priceMonthly ? (
                   <>
-                    <span className="text-5xl font-bold tracking-tight text-gray-900">
+                    <span className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white ">
                       {tier.priceMonthly}
                     </span>
-                    <span className="text-base font-sebmiold leading-7 text-gray-600">
+                    <span className="text-base font-sebmiold leading-7 text-gray-600 dark:text-white ">
                       /month
                     </span>
                   </>
                 ) : (
-                  <span className="text-5xl font-bold tracking-tight text-gray-900">
+                  <span className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white ">
                     Free
                   </span>
                 )}
               </div>
-              <p className="mt-6 text-base leading-7 text-gray-600">
+              <p className="mt-6 text-base leading-7 text-gray-600 dark:text-white ">
                 {tier.description}
               </p>
               <ul
                 role="list"
-                className="mt-10 space-y-4 text-sm leading-6 text-gray-600"
+                className="mt-10 space-y-4 text-sm leading-6 text-gray-600 dark:text-white "
               >
                 {tier.features.map((feature) => (
                   <li key={feature} className="flex gap-x-3">

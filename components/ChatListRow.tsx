@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLanguageStore } from "@/store/store";
 import { useState, useEffect } from "react";
-import { doc, getFirestore, getDoc } from "firebase/firestore";
+import { doc, getFirestore, getDoc, onSnapshot } from "firebase/firestore";
 
 function ChatListRow({ chatId }: { chatId: string }) {
   const [messages, loading, error] = useCollectionData<Message>(
@@ -25,20 +25,30 @@ function ChatListRow({ chatId }: { chatId: string }) {
 
   const { data: session } = useSession();
 
+  const [userData, setUserData]: any = useState({});
+
   useEffect(() => {
-    messages?.forEach(async (message) => {
-      if (message && !userImages[message.user.id]) {
-        const userRef = doc(firestore, "users", message.user.id);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUserImages((prev) => ({
-            ...prev,
-            [message.user.id]: userData.image,
+    const firestore = getFirestore();
+    const userListeners: any = {};
+
+    messages?.forEach((message) => {
+      const userId = message.user.id;
+      if (!userListeners[userId]) {
+        const userRef = doc(firestore, "users", userId);
+        userListeners[userId] = onSnapshot(userRef, (doc) => {
+          const data = doc.data();
+          setUserData((prevData: any) => ({
+            ...prevData,
+            [userId]: { image: data?.image, name: data?.name },
           }));
-        }
+        });
       }
     });
+
+    // Cleanup
+    return () => {
+      Object.values(userListeners).forEach((unsubscribe: any) => unsubscribe());
+    };
   }, [messages]);
 
   function prettyUUID(n = 4) {
@@ -47,40 +57,40 @@ function ChatListRow({ chatId }: { chatId: string }) {
 
   console.log(session?.user.image);
 
-  const row = (message?: Message) => (
-    <div
-      key={chatId}
-      onClick={() => router.push(`/chat/${chatId}`)}
-      className="flex p-5 items-center space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700"
-    >
-      <UserAvatar
-        name={message?.user.name || session?.user.name}
-        //@ts-ignore
-        image={userImages[message?.user.id] || session?.user.image}
-        className=""
-      />
-      <div className="flex-1">
-        <p className="font-bold">
-          {!message && "New Chat"}
-          {message &&
-            [message?.user.name || session?.user.name].toString().split(" ")[0]}
-        </p>
+  const row = (message?: Message) => {
+    // Extract the user's updated info if available
+    const userInfo = message && userData[message.user.id];
+    const userName = userInfo?.name || message?.user.name || session?.user.name;
+    const userImage = userInfo?.image || session?.user.image;
 
-        <p className="text-gray-400 line-clamp-1">
-          {message?.translated?.["en"] || "Get the conversation started..."}
-        </p>
+    return (
+      <div
+        key={chatId}
+        onClick={() => router.push(`/chat/${chatId}`)}
+        className="flex p-5 items-center space-x-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700"
+      >
+        <UserAvatar name={userName} image={userImage} className="" />
+        <div className="flex-1">
+          <p className="font-bold">
+            {!message && "New Chat"}
+            {message && userName.split(" ")[0]}
+          </p>
+          <p className="text-gray-400 line-clamp-1">
+            {message?.translated?.[language] ||
+              "Get the conversation started..."}
+          </p>
+        </div>
+        <div className="text-xs text-gray-400 text-right">
+          <p className="mb-auto">
+            {message
+              ? new Date(message.timestamp).toLocaleTimeString()
+              : "No messages yet"}
+          </p>
+          <p className="">chat #{prettyUUID()}</p>
+        </div>
       </div>
-
-      <div className="text-xs text-gray-400 text-right">
-        <p className="mb-auto">
-          {message
-            ? new Date(message.timestamp).toLocaleTimeString()
-            : "No messages yet"}
-        </p>
-        <p className="">chat #{prettyUUID()}</p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>

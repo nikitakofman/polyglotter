@@ -75,19 +75,23 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
 
           // Update the member's image in the local state
           setUpdatedMembers((prevMembers) => {
-            // Find the index of the member that needs to be updated
             const index = prevMembers.findIndex(
               (m) => m.userId === member.userId
             );
-
-            // If the member is not in the array yet, add them
             if (index === -1) {
-              return [...prevMembers, { ...member, image: updatedUser?.image }];
+              return [
+                ...prevMembers,
+                {
+                  ...member,
+                  name: updatedUser?.name,
+                  image: updatedUser?.image,
+                },
+              ];
             }
-
-            // If the member is already in the array, update their data
             return prevMembers.map((m, i) =>
-              i === index ? { ...m, image: updatedUser?.image } : m
+              i === index
+                ? { ...m, name: updatedUser?.name, image: updatedUser?.image }
+                : m
             );
           });
         });
@@ -157,6 +161,8 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
     });
   };
 
+  console.log(session);
+
   return (
     !loading && (
       <div className=" rounded-xl ">
@@ -191,7 +197,7 @@ function ChatMembersBadges({ chatId }: { chatId: string }) {
                       <div className="flex items-center flex-col">
                         <img
                           src={member.image}
-                          className="w-28 mt-2 h-28 rounded-full"
+                          className="w-28 mt-2 h-28 object-cover rounded-full"
                         />
                       </div>
                     </DialogDescription>

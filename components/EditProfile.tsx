@@ -30,7 +30,7 @@ import Image from "next/image";
 import { generatePortalLink } from "@/actions/generatePortalLink";
 import { useSubscriptionStore } from "@/store/store";
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
-import { PictureInPicture, Upload } from "lucide-react";
+import { Pencil, PictureInPicture, Upload } from "lucide-react";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import { useUser } from "@/components/UserContext";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
@@ -45,7 +45,7 @@ function EditProfile() {
     setOpenSheet(true); // Open the sheet
   };
 
-  const { data: session } = useSession();
+  const { data: session, update: updateSession }: any = useSession();
 
   console.log("AAAAH", session);
 
@@ -55,7 +55,17 @@ function EditProfile() {
 
   const [openPass, setOpenPass] = useState(false);
 
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData]: any = useState({});
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState(
+    userData?.name || session?.user.name
+  );
+
+  const handleEditClick = () => {
+    setNewDisplayName(userData?.name || session?.user.name);
+    setIsEditingName(true);
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -230,6 +240,50 @@ function EditProfile() {
     }
   };
 
+  const handleDisplayNameUpdate = async () => {
+    if (!newDisplayName || newDisplayName === userData.name) {
+      setIsEditingName(false);
+      return;
+    }
+
+    try {
+      const userRef = doc(getFirestore(), "users", session.user.id);
+      await setDoc(userRef, { name: newDisplayName }, { merge: true });
+
+      setUserData({ ...userData, name: newDisplayName });
+
+      // Manually update the session data on the client side
+      if (session && session.user) {
+        session.user.name = newDisplayName;
+      }
+
+      toast({
+        title: "Success",
+        description: "Your display name has been updated!",
+        className: "bg-green-600 text-white",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      toast({
+        title: "Error",
+        description: "There was an error updating your display name!",
+        variant: "destructive",
+      });
+    }
+
+    setIsEditingName(false);
+  };
+
+  function handleChange(event: any) {
+    const regex = /^[A-Za-z0-9._-]+$/;
+    const value = event.target.value;
+    // Check if the value is empty or matches the regex
+    if (value === "" || regex.test(value)) {
+      setNewDisplayName(value);
+    }
+  }
+
   return (
     <Sheet open={openSheet}>
       <SheetTrigger asChild>
@@ -237,13 +291,65 @@ function EditProfile() {
       </SheetTrigger>
       <SheetContent side="left" onClick={(e) => e.stopPropagation()}>
         <div className="isolate overflow-hidden dark:bg-gray-900">
-          <div className="mx-auto max-w-7xl pt-10 pb-10 flex items-center justify-center flex-col">
-            <div className="mx-auto flex items-center justify-center flex-col max-w-4xl">
+          <div className="max-w-7xl pt-10 pb-10 flex items-center flex-col">
+            <div className=" flex flex-col  w-full  max-w-[272px]">
               <h2 className="text-base mb-3 font-semibold leading-7  text-[#EF9351]">
                 Profile
               </h2>
-              <p className="font-bold mb-2">{session?.user.name}</p>
-              <p className="font-bold text-xs mb-3">{session?.user.email}</p>
+              <div className="flex flex-col">
+                <div className="">
+                  <p className="text-xs flex items-center text-gray-300">
+                    Display name
+                    {!isEditingName && (
+                      <Pencil
+                        onClick={handleEditClick}
+                        className="w-3 ml-2 text-gray-50 cursor-pointer dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                      />
+                    )}
+                  </p>
+                  {isEditingName ? (
+                    <>
+                      <textarea
+                        value={newDisplayName}
+                        onChange={handleChange}
+                        className="border-2 rounded p-2 resize-none bg-transparent mt-2" // Add 'resize-none' to prevent resizing
+                        rows={1} // Set rows to 1 to mimic an input field's height
+                        maxLength={20}
+                      />
+                      <div className="flex space-x-2 mt-2">
+                        <Button
+                          onClick={handleDisplayNameUpdate}
+                          variant="secondary"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          onClick={() => setIsEditingName(false)}
+                          variant="ghost"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap items-center ">
+                      <p className="font-bold ">
+                        {userData?.name || session?.user.name}
+                      </p>
+                      <p className="text-gray-400 text-[14px] ml-1">
+                        #
+                        {session?.user.id.substring(
+                          session?.user.id.length - 4
+                        )}
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-3">
+                  <p className="text-xs text-gray-300">E-mail</p>
+                  <p className="font-bold mb-3">{session?.user.email}</p>
+                </div>
+              </div>
               <div className=" mt-3 mb-3">
                 <div className="border-2  rounded-xl p-2 mb-2 flex flex-col items-center">
                   <p className="mt-2 font-semibold text-xs ">Profile picture</p>
@@ -281,44 +387,43 @@ function EditProfile() {
                     </Button>
                   </div>
                 </div>
-                {/* @ts-ignore */}
-                {session?.user.provider && (
-                  <Dialog open={openPass} onOpenChange={setOpenPass}>
-                    <DialogTrigger asChild>
-                      <Button variant="default" className="mt-3">
-                        Reset your password
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                      <DialogHeader>
-                        <DialogTitle>Confirm password reset</DialogTitle>
-                        <DialogDescription>
-                          This will send an email to {session?.user.email} with
-                          a link to reset your password.
-                        </DialogDescription>
-                      </DialogHeader>
-
-                      <div className="grid grid-cols-2 space-x-2">
-                        <Button variant="default" onClick={sendEmailReset}>
-                          Send
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setOpenPass(false)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                )}
               </div>
             </div>
             <div className="relative flex  space-y-4 w-full max-w-[272px] flex-col mt-3">
               {/* {subscription === undefined && (
            
-          )} */}
+          )} */}{" "}
+              {/* @ts-ignore */}
+              {session?.user.provider && (
+                <Dialog open={openPass} onOpenChange={setOpenPass}>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary" className="mt-3">
+                      Reset your password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Confirm password reset</DialogTitle>
+                      <DialogDescription>
+                        This will send an email to {session?.user.email} with a
+                        link to reset your password.
+                      </DialogDescription>
+                    </DialogHeader>
 
+                    <div className="grid grid-cols-2 space-x-2">
+                      <Button variant="default" onClick={sendEmailReset}>
+                        Send
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setOpenPass(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
               {subscription?.role === "pro" && (
                 <form action={generatePortalLink}>
                   <button
@@ -329,7 +434,6 @@ function EditProfile() {
                   </button>
                 </form>
               )}
-
               <Button variant="outline">Sign out</Button>
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>

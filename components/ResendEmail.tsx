@@ -25,7 +25,7 @@ function ResendEmail() {
     sendSignInLinkToEmail(auth, session?.user.email, actionCodeSettings);
     toast({
       title: "Success",
-      description: `Activation link sent to ${session?.user.email}.`,
+      description: `Activation link sent to ${session?.user.email}`,
       className: "bg-green-600 text-white",
       duration: 2000,
     });

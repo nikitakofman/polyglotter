@@ -51,16 +51,9 @@ async function Header() {
                 </>
               ) : (
                 <>
-                  <HoverCard>
-                    <HoverCardTrigger asChild>
-                      <MessagesSquareIcon className="text-gray-500 mr-2 cursor-not-allowed " />
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-full">
-                      <p className="text-[14px]">
-                        Verify your e-mail to start chatting!
-                      </p>
-                    </HoverCardContent>
-                  </HoverCard>
+                  <Link href={"/chat"} prefetch={false}>
+                    <MessagesSquareIcon className="text-black mr-2 dark:text-white" />
+                  </Link>
                   <HoverCard>
                     <HoverCardTrigger asChild>
                       <MessageSquarePlusIcon className="text-gray-500 mr-2 cursor-not-allowed " />

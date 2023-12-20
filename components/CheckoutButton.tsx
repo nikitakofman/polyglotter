@@ -10,12 +10,14 @@ import ManageAccountButton from "./ManageAccountButton";
 import LoadingSpinnerWhite from "./LoadingSpinnerWhite";
 
 function CheckoutButton() {
-  const { data: session } = useSession();
+  const { data: session }: any = useSession();
 
   const [loading, setLoading] = useState(false);
   const subscription = useSubscriptionStore((state) => state.subscription);
 
   const isLoadingSubscription = subscription === undefined;
+
+  console.log(session?.user.emailVerified);
 
   const isSubscribed =
     subscription?.status === "active" && subscription?.role === "pro";
@@ -28,7 +30,7 @@ function CheckoutButton() {
     const docRef = await addDoc(
       collection(db, "customers", session.user.id, "checkout_sessions"),
       {
-        price: "price_1OMGokHKR0RdeMPizGVbdt6s",
+        price: "price_1OPWKGHKR0RdeMPirhB6V1Wc",
         success_url: window.location.origin,
         cancel_url: window.location.origin,
       }
@@ -60,20 +62,31 @@ function CheckoutButton() {
     <div className="flex flex-col space-y-2">
       {isSubscribed && (
         <>
-          <hr className="mt-5" />
+          <hr className="mt-5 dark:border-t-white border-t-black" />
           <p className="pt-5 text-center text-xs text-[#EF9351]">
             You are subcribed to PRO
           </p>
         </>
       )}
       <div className="mt-8 block rounded-md bg-[#EF9351] px-3.5 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#EF9351] focus:visible:outline focus:visible:outline-2 focus:visible:outline-offset-2 focus:visible:outline-[#EF9351] cursor-pointer disabled:opacity-80">
-        {isSubscribed ? (
+        {session?.user.emailVerified ? (
+          isSubscribed ? (
+            <ManageAccountButton />
+          ) : isLoadingSubscription || loading ? (
+            <LoadingSpinnerWhite />
+          ) : (
+            <button onClick={() => createCheckoutSession()}>Sign up</button>
+          )
+        ) : (
+          "Verify e-mail to subscribe"
+        )}
+        {/* {isSubscribed ? (
           <ManageAccountButton />
         ) : isLoadingSubscription || loading ? (
           <LoadingSpinnerWhite />
         ) : (
           <button onClick={() => createCheckoutSession()}>Sign up</button>
-        )}
+        )} */}
       </div>
     </div>
   );

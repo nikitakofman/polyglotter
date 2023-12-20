@@ -276,6 +276,14 @@ function UserButton({ session }: { session: Session | null }) {
     }
   };
 
+  const handleNameChange = (e: any) => {
+    const regex = /^[a-zA-Z0-9._-]+$/;
+    const name = e.target.value;
+    if (name === "" || regex.test(name)) {
+      setRegisterName(name);
+    }
+  };
+
   if (!session) {
     return (
       <>
@@ -406,7 +414,8 @@ function UserButton({ session }: { session: Session | null }) {
                   name="username"
                   value={registerName}
                   className="mt-2"
-                  onChange={(e) => setRegisterName(e.target.value)}
+                  onChange={handleNameChange} // Updated to use handleNameChange
+                  maxLength={20}
                 />
               </div>
               <div>

@@ -11,7 +11,7 @@ import {
   Settings2,
 } from "lucide-react";
 import { Session } from "next-auth";
-import { createRef, useEffect, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import UserAvatar from "./UserAvatar";
 import LoadingSpinner from "./LoadingSpinner";
@@ -42,7 +42,7 @@ function ChatMessages({
 }) {
   const language = useLanguageStore((state) => state.language);
   const messagesEndRef = createRef<HTMLDivElement>();
-  const [messages, loading, error] = useCollectionData<Message>(
+  const [messages, loading, error]: any = useCollectionData<Message>(
     sortedMessagesRef(chatId),
     { initialValue: initialMessages }
   );
@@ -50,20 +50,37 @@ function ChatMessages({
 
   const [userAvatars, setUserAvatars] = useState({});
 
+  const [updatedMessages, setUpdatedMessages] = useState([]);
+
+  useEffect(() => {
+    setUpdatedMessages(messages); // Initialize updatedMessages with the fetched messages
+  }, [messages]);
+
   useEffect(() => {
     const firestore = getFirestore();
     const userListeners: any = {};
 
-    messages?.forEach((message: any) => {
+    updatedMessages?.forEach((message: any) => {
       const userId = message.user.id;
       if (!userListeners[userId]) {
         const userRef = doc(firestore, "users", userId);
         userListeners[userId] = onSnapshot(userRef, (doc) => {
           const userData = doc.data();
+
+          // Update userAvatars state
           setUserAvatars((prevAvatars) => ({
             ...prevAvatars,
-            [userId]: userData?.image,
+            [userId]: userData?.image, // Assuming 'image' is the field where avatar URL is stored
           }));
+
+          // Optionally update message user names (if they are also meant to be dynamic)
+          setUpdatedMessages((prevMessages: any) =>
+            prevMessages.map((msg: any) =>
+              msg.user.id === userId
+                ? { ...msg, user: { ...msg.user, name: userData?.name } }
+                : msg
+            )
+          );
         });
       }
     });
@@ -72,7 +89,7 @@ function ChatMessages({
     return () => {
       Object.values(userListeners).forEach((unsubscribe: any) => unsubscribe());
     };
-  }, [messages]);
+  }, [updatedMessages]);
 
   const [editingMessageId, setEditingMessageId] = useState(null);
   const [editingContent, setEditingContent] = useState("");
@@ -110,8 +127,14 @@ function ChatMessages({
     }
   };
 
+  const prevMessagesLength = useRef(messages?.length);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    //@ts-ignore
+    if (messages?.length > prevMessagesLength.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    prevMessagesLength.current = messages?.length;
   }, [messages, messagesEndRef]);
 
   useEffect(() => {
@@ -160,7 +183,7 @@ function ChatMessages({
           </p>
         </div>
       )}
-      {messages?.map((message) => {
+      {updatedMessages?.map((message: any) => {
         const isSender = message.user.id === session?.user.id;
         const hasText = message.input && message.input.trim().length > 0;
         const isEditing = editingMessageId === message.id;
@@ -188,7 +211,7 @@ function ChatMessages({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button aria-label="Options">
-                        <Pencil className="w-3 ml-1 text-gray-500 hover:text-gray-700" />
+                        <Pencil className="w-3 ml-1 text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
