@@ -52,9 +52,9 @@ function ChatMessages({
 
   useEffect(() => {
     const firestore = getFirestore();
-    const userListeners = {};
+    const userListeners: any = {};
 
-    messages.forEach((message) => {
+    messages?.forEach((message: any) => {
       const userId = message.user.id;
       if (!userListeners[userId]) {
         const userRef = doc(firestore, "users", userId);
@@ -70,7 +70,7 @@ function ChatMessages({
 
     // Cleanup
     return () => {
-      Object.values(userListeners).forEach((unsubscribe) => unsubscribe());
+      Object.values(userListeners).forEach((unsubscribe: any) => unsubscribe());
     };
   }, [messages]);
 
@@ -164,7 +164,7 @@ function ChatMessages({
         const isSender = message.user.id === session?.user.id;
         const hasText = message.input && message.input.trim().length > 0;
         const isEditing = editingMessageId === message.id;
-
+        //@ts-ignore
         const userAvatar = userAvatars[message.user.id] || message.user.image;
 
         return (
