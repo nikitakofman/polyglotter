@@ -44,7 +44,7 @@ export default function RootLayout({
             />
             <meta
               property="og:image"
-              content="https://i.ibb.co/q7hNK4N/Screenshot-2023-12-20-at-21-40-30.png"
+              content="https://www.polyglotter.app/polyweb.png"
             />
 
             {/* Twitter */}
@@ -60,7 +60,7 @@ export default function RootLayout({
             />
             <meta
               property="twitter:image"
-              content="https://i.ibb.co/q7hNK4N/Screenshot-2023-12-20-at-21-40-30.png"
+              content="https://www.polyglotter.app/polyweb.png"
             />
           </Head>
           <body className="min-h-screen">
