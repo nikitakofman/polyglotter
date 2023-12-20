@@ -2,9 +2,16 @@
 
 import { Message, sortedMessagesRef } from "@/lib/converters/Message";
 import { useLanguageStore } from "@/store/store";
-import { MessageCircleIcon } from "lucide-react";
+import {
+  Cog,
+  MessageCircleIcon,
+  Pencil,
+  PencilLine,
+  Settings,
+  Settings2,
+} from "lucide-react";
 import { Session } from "next-auth";
-import { createRef, useEffect } from "react";
+import { createRef, useEffect, useState } from "react";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import UserAvatar from "./UserAvatar";
 import LoadingSpinner from "./LoadingSpinner";
@@ -13,6 +20,16 @@ import { chatMembersRef } from "@/lib/converters/ChatMembers";
 import { deleteDoc, doc, getFirestore, onSnapshot } from "firebase/firestore";
 import { toast } from "./ui/use-toast";
 import LoadingSpinnerWhite from "./LoadingSpinnerWhite";
+import { updateDoc } from "firebase/firestore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "./ui/button";
 
 function ChatMessages({
   chatId,
@@ -31,6 +48,68 @@ function ChatMessages({
   );
   const router = useRouter();
 
+  const [userAvatars, setUserAvatars] = useState({});
+
+  useEffect(() => {
+    const firestore = getFirestore();
+    const userListeners = {};
+
+    messages.forEach((message) => {
+      const userId = message.user.id;
+      if (!userListeners[userId]) {
+        const userRef = doc(firestore, "users", userId);
+        userListeners[userId] = onSnapshot(userRef, (doc) => {
+          const userData = doc.data();
+          setUserAvatars((prevAvatars) => ({
+            ...prevAvatars,
+            [userId]: userData?.image,
+          }));
+        });
+      }
+    });
+
+    // Cleanup
+    return () => {
+      Object.values(userListeners).forEach((unsubscribe) => unsubscribe());
+    };
+  }, [messages]);
+
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingContent, setEditingContent] = useState("");
+
+  const handleEditMessage = (message: any) => {
+    setEditingMessageId(message.id);
+    setEditingContent(message.input);
+  };
+
+  const handleSaveEditedMessage = async () => {
+    if (!editingMessageId || !editingContent.trim()) return;
+
+    try {
+      const firestore = getFirestore();
+      const messageRef = doc(
+        firestore,
+        "chats",
+        chatId,
+        "messages",
+        editingMessageId
+      );
+      await updateDoc(messageRef, {
+        input: editingContent,
+        // Add any other fields that need to be updated, e.g., updatedAt timestamp
+      });
+      setEditingMessageId(null);
+      setEditingContent("");
+      toast({
+        title: "Message Updated",
+        description: "Your message has been successfully updated.",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("Error updating message:", error);
+    }
+  };
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, messagesEndRef]);
@@ -42,11 +121,11 @@ function ChatMessages({
         (doc) => doc.data().userId === session?.user.id
       );
       if (!isMember) {
-        toast({
-          title: "Admin removed you",
-          description: "You have been removed from this chat",
-          duration: 3000,
-        });
+        // toast({
+        //   title: "Admin removed you",
+        //   description: "You have been removed from this chat",
+        //   duration: 2000,
+        // });
         router.push("/chat");
       }
     });
@@ -54,7 +133,7 @@ function ChatMessages({
     return () => unsubscribe();
   }, [chatId, session?.user.id, router]);
 
-  const handleDeleteMessage = async (messageId) => {
+  const handleDeleteMessage = async (messageId: any) => {
     try {
       // Ensure you have the chatId available in this component's scope
       const firestore = getFirestore();
@@ -84,6 +163,9 @@ function ChatMessages({
       {messages?.map((message) => {
         const isSender = message.user.id === session?.user.id;
         const hasText = message.input && message.input.trim().length > 0;
+        const isEditing = editingMessageId === message.id;
+
+        const userAvatar = userAvatars[message.user.id] || message.user.image;
 
         return (
           <div key={message.id} className="flex my-2 items-end">
@@ -94,39 +176,85 @@ function ChatMessages({
                   : "bg-gray-100 dark:bg-slate-700 dark:text-gray-100 rounded-bl-none"
               }`}
             >
-              <p
-                className={`text-xs italic font-extralight ${
-                  isSender ? "text-right" : "text-left"
-                }`}
-              >
-                {message.user.name.split(" ")[0]}
-              </p>
-              {message.imageUrl && message.imageUrl !== "undefined" && (
-                <img
-                  src={message.imageUrl}
-                  alt="Uploaded"
-                  style={{ maxWidth: "200px", maxHeight: "200px" }}
-                  className="object-cover"
-                />
-              )}
-              <div className="flex items-center space-x-2">
-                <p>{message.translated?.[language] || message.input}</p>
-                {hasText && !message.translated && <LoadingSpinnerWhite />}
-                {isSender && (
-                  <button
-                    onClick={() => handleDeleteMessage(message.id)}
-                    className="ml-2 text-red-500 hover:text-red-700"
-                    aria-label="Delete message"
-                  >
-                    {/* Replace this text with an icon if preferred */}
-                    Delete
-                  </button>
+              <div className="flex justify-between items-center">
+                <p
+                  className={`text-xs italic font-extralight ${
+                    isSender ? "text-right" : "text-left"
+                  }`}
+                >
+                  {message.user.name.split(" ")[0]}
+                </p>
+                {isSender && !isEditing && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button aria-label="Options">
+                        <Pencil className="w-3 ml-1 text-gray-500 hover:text-gray-700" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onSelect={() => handleEditMessage(message)}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleDeleteMessage(message.id)}
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </div>
+              {message.imageUrl &&
+                message.imageUrl !== "undefined" &&
+                !isEditing && (
+                  <img
+                    src={message.imageUrl}
+                    alt="Uploaded"
+                    style={{ maxWidth: "200px", maxHeight: "200px" }}
+                    className="object-cover"
+                  />
+                )}
+              {!isEditing && (
+                <div className="flex items-center space-x-2">
+                  <pre className="break-all whitespace-pre-wrap font-sans text-base">
+                    {message.translated?.[language] || message.input}
+                  </pre>
+                  {hasText && !message.translated && <LoadingSpinnerWhite />}
+                </div>
+              )}
+              {isEditing && (
+                <div>
+                  <textarea
+                    value={editingContent}
+                    onChange={(e) => setEditingContent(e.target.value)}
+                    className="border bg-transparent dark:border-white/50 border-gray-300 pl-3 pr-3 pt-2 pb-2 rounded"
+                  />
+                  <div className="flex justify-between mt-2 items-center">
+                    <Button
+                      onClick={handleSaveEditedMessage}
+                      variant="secondary"
+                      className=""
+                      aria-label="Save edited message"
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      onClick={() => setEditingMessageId(null)}
+                      variant="ghost"
+                      className=""
+                      aria-label="Cancel editing"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             <UserAvatar
               name={message.user.name}
-              image={message.user.image}
+              image={userAvatar}
               className={`${!isSender && "order-1"}`}
             />
           </div>
