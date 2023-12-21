@@ -203,10 +203,10 @@ function Support() {
         <p className="mb-3">
           We want to inform you that whenever you visit our Service, we collect
           information that your browser sends to us that is called Log Data.
-          This Log Data may include information such as your computer's Internet
-          Protocol ("IP") address, browser version, pages of our Service that
-          you visit, the time and date of your visit, the time spent on those
-          pages, and other statistics.
+          This Log Data may include information such as your computer&apos;s
+          Internet Protocol (&quot;IP&quot;) address, browser version, pages of
+          our Service that you visit, the time and date of your visit, the time
+          spent on those pages, and other statistics.
         </p>
 
         <h2 className="font-bold mb-3 underline underline-offset-4">
@@ -259,7 +259,7 @@ function Support() {
         </p>
 
         <h2 className="font-bold mb-3 underline underline-offset-4">
-          6. Children's Privacy
+          6. Children&apos;s Privacy
         </h2>
 
         <p className="mb-3">
@@ -291,15 +291,16 @@ function Support() {
         <p className="mb-3">
           Cookies are files with small amount of data that is commonly used an
           anonymous unique identifier. These are sent to your browser from the
-          website that you visit and are stored on your computer's hard drive.
+          website that you visit and are stored on your computer&apos;s hard
+          drive.
         </p>
 
         <p className="mb-3">
-          Our website uses these "cookies" to collection information and to
-          improve our Service. You have the option to either accept or refuse
-          these cookies, and know when a cookie is being sent to your computer.
-          If you choose to refuse our cookies, you may not be able to use some
-          portions of our Service.
+          Our website uses these &quot;cookies&quot; to collection information
+          and to improve our Service. You have the option to either accept or
+          refuse these cookies, and know when a cookie is being sent to your
+          computer. If you choose to refuse our cookies, you may not be able to
+          use some portions of our Service.
         </p>
 
         <h2 className="font-bold mb-3 underline underline-offset-4">
