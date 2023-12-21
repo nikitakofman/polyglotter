@@ -59,8 +59,9 @@ function Support() {
         </h3>
         <p className="mb-3">
           Welcome to Polyglotter! By accessing or using our website and
-          services, you agree to be bound by these Terms of Service ("Terms").
-          If you do not agree to these Terms, please do not use our services.
+          services, you agree to be bound by these Terms of Service
+          (&quot;Terms&quot;). If you do not agree to these Terms, please do not
+          use our services.
         </p>
 
         <h3 className="font-bold mb-3 underline underline-offset-4">
