@@ -42,7 +42,7 @@ async function PricingCards({ redirect }: { redirect: boolean }) {
         {tiers.map((tier) => (
           <div
             key={tier.id}
-            className="flex flex-col justify-between rounded-3xl bg-[#EF9351]/10 m-4   p-8 sm:p-10"
+            className="flex flex-col justify-between rounded-3xl bg-[#EF9351]/10 m-2   p-8 sm:p-10"
           >
             <div>
               <h3

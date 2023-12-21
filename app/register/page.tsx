@@ -8,8 +8,8 @@ async function Register() {
     <div className="isolate h-full overflow-hidden bg-gradient-to-t from-[#EF9351]/40 to-bg-gray-900 pb-40">
       <div className="mx-auto max-w-7xl px-6 pb-12 pt-16 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <p className="mt-2 text-4xl font-bold tracking-tight dark:text-white sm:text-5xl">
-            Manage your membership, {session?.user?.name?.split(" ")[0]}!
+          <p className="mt-2 text-4xl font-bold text-center tracking-tight dark:text-white sm:text-5xl">
+            Manage your membership
           </p>
         </div>
         <div className="relative">

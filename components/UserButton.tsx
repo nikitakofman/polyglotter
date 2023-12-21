@@ -29,7 +29,7 @@ import {
 } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   createUserWithEmailAndPassword,
@@ -276,11 +276,34 @@ function UserButton({ session }: { session: Session | null }) {
     }
   };
 
-  const handleNameChange = (e: any) => {
-    const regex = /^[a-zA-Z0-9._-]+$/;
-    const name = e.target.value;
-    if (name === "" || regex.test(name)) {
-      setRegisterName(name);
+  const [isInputValid, setIsInputValid] = useState(true);
+  const [showPopover, setShowPopover] = useState(false);
+  const regex = /^[a-zA-Z0-9._-]+$/;
+
+  useEffect(() => {
+    let timeout: any;
+    if (!isInputValid) {
+      setShowPopover(true);
+      timeout = setTimeout(() => {
+        setShowPopover(false);
+      }, 2000);
+    }
+    return () => clearTimeout(timeout);
+  }, [isInputValid]);
+
+  const handleNameChange = (event: any) => {
+    const { value } = event.target;
+    // Check if the input is either empty or matches the regex
+    if (value === "" || regex.test(value)) {
+      setIsInputValid(true);
+      setRegisterName(value);
+      // Hide the popover immediately if the input becomes valid
+      setShowPopover(false);
+    } else {
+      setIsInputValid(false);
+      // Show popover only when invalid characters are typed
+      setShowPopover(true);
+      setTimeout(() => setShowPopover(false), 2000); // Hide popover after 2 seconds
     }
   };
 
@@ -342,16 +365,16 @@ function UserButton({ session }: { session: Session | null }) {
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Button type="submit" variant="default">
+                <Button type="submit" variant="default" className="mt-3">
                   Log in
                 </Button>
-                <p>No account yet ?</p>
+                <p className="-mt-[70px] text-[14px]">New user ?</p>
               </div>
             </form>
             <div className="w-full flex items-center justify-between">
               <div>
                 <p
-                  className="font-light cursor-pointer hover:text-gray-300"
+                  className=" cursor-pointer -mt-[88px] text-[14px] hover:text-gray-300"
                   onClick={openForgotPass}
                 >
                   Forgot password?
@@ -359,10 +382,10 @@ function UserButton({ session }: { session: Session | null }) {
               </div>
               <div className="flex flex-col">
                 <div
-                  className="rounded-md cursor-pointer bg-[#ef9351] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
+                  className="rounded-md cursor-pointer bg-[#ef9351] -mt-[56px] px-3.5 py-2.5 text-sm font-semibold text-white dark:text-white shadow-sm hover:bg-[#FE9D52] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#EF9351]"
                   onClick={openRegisterDialog}
                 >
-                  Create account
+                  Sign up
                 </div>
               </div>
             </div>
@@ -414,9 +437,17 @@ function UserButton({ session }: { session: Session | null }) {
                   name="username"
                   value={registerName}
                   className="mt-2"
-                  onChange={handleNameChange} // Updated to use handleNameChange
+                  onChange={handleNameChange}
                   maxLength={20}
                 />
+                <div
+                  className={`absolute mt-3 sm:mt-20 sm:top-[80px] z-20 space-y-2 p-3  w-64 bg-white border dark:bg-red-800 flex flex-col items-start rounded-md shadow-xl  transition-opacity duration-500 ${
+                    showPopover ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  Only alphanumeric characters, dots, underscores, and hyphens
+                  are allowed.
+                </div>
               </div>
               <div>
                 <label htmlFor="registerEmail">E-mail</label>
@@ -440,6 +471,16 @@ function UserButton({ session }: { session: Session | null }) {
                   onChange={(e) => setRegisterPassword(e.target.value)}
                 />
               </div>
+              <p className="italic text-[14px]">
+                By creating an account, you agree to our{" "}
+                <Link
+                  href="/support"
+                  className="text-blue-400 hover:text-blue-300"
+                  onClick={() => setIsRegisterDialogOpen(false)}
+                >
+                  Terms of Service
+                </Link>
+              </p>
               <Button type="submit" variant="default">
                 Register
               </Button>

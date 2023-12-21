@@ -53,11 +53,11 @@ async function Header() {
               ) : (
                 <>
                   <Link href={"/chat"} prefetch={false}>
-                    <MessagesSquareIcon className="text-black mr-2 dark:text-white" />
+                    <MessagesSquareIcon className="text-black mr-3 dark:text-white" />
                   </Link>
                   <HoverCard>
                     <HoverCardTrigger asChild>
-                      <MessageSquarePlusIcon className="text-gray-500 mr-2 cursor-not-allowed " />
+                      <MessageSquarePlusIcon className="text-gray-500 mr-3 cursor-not-allowed " />
                     </HoverCardTrigger>
                     <HoverCardContent className="w-full">
                       <p className="text-[14px]">

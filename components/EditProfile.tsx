@@ -353,7 +353,7 @@ function EditProfile() {
                 </div>
               </div>
               <div className=" mt-3 mb-3">
-                <div className="border-2  rounded-xl p-2 mb-2 flex flex-col items-center">
+                <div className="rounded-xl p-2 mb-2 flex flex-col items-center">
                   <p className="mt-2 font-semibold text-xs ">Profile picture</p>
                   <Image
                     width={200}
