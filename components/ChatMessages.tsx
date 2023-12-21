@@ -176,11 +176,7 @@ function ChatMessages({
       {!loading && messages?.length === 0 && (
         <div className="flex flex-col justify-center text-center items-center p-10 rounded-xl space-y-2 text-black dark:text-white font-extralight">
           <MessageCircleIcon className="h-10 w-10" />
-          <p className="font-bold mb-3">Kick off your global chats now!</p>
-          <p>
-            Invite a friend, message in any language, and let us seamlessly
-            handle the translation.
-          </p>
+          <p className="font-bold mb-3">Kick off the conversation now!</p>
         </div>
       )}
       {updatedMessages?.map((message: any) => {
