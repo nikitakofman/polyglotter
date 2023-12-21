@@ -103,7 +103,7 @@ function EditProfile() {
 
     toast({
       title: "Deleting chat",
-      description: "Please wait while we delete the chat...",
+      description: "Please wait while we delete your account...",
     });
 
     console.log("Deleting :", session?.user.id);
@@ -285,7 +285,7 @@ function EditProfile() {
   }
 
   return (
-    <Sheet open={openSheet}>
+    <Sheet open={openSheet} onOpenChange={setOpenSheet}>
       <SheetTrigger asChild>
         <div onClick={handleSheetTriggerClick}>Profile</div>
       </SheetTrigger>
@@ -293,17 +293,17 @@ function EditProfile() {
         <div className="isolate overflow-hidden dark:bg-gray-900">
           <div className="max-w-7xl pt-10 pb-10 flex items-center flex-col">
             <div className=" flex flex-col  w-full  max-w-[272px]">
-              <h2 className="text-base mb-3 font-semibold leading-7  text-[#EF9351]">
+              <h2 className="text-2xl mb-3 font-semibold leading-7  text-[#EF9351]">
                 Profile
               </h2>
               <div className="flex flex-col">
                 <div className="">
-                  <p className="text-xs flex items-center text-gray-300">
+                  <p className="text-xs flex items-center text-gray-500 dark:text-gray-300">
                     Display name
                     {!isEditingName && (
                       <Pencil
                         onClick={handleEditClick}
-                        className="w-3 ml-2 text-gray-50 cursor-pointer dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
+                        className="w-3 ml-2 text-gray-500 cursor-pointer dark:text-white hover:text-gray-700 dark:hover:text-gray-300"
                       />
                     )}
                   </p>
@@ -346,7 +346,9 @@ function EditProfile() {
                   )}
                 </div>
                 <div className="mt-3">
-                  <p className="text-xs text-gray-300">E-mail</p>
+                  <p className="text-xs dark:text-gray-300 text-gray-500">
+                    E-mail
+                  </p>
                   <p className="font-bold mb-3">{session?.user.email}</p>
                 </div>
               </div>

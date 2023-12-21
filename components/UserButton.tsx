@@ -489,6 +489,13 @@ function UserButton({ session }: { session: Session | null }) {
             {/* <div onClick={openProfile}>Profile</div> */}
             <EditProfile />
           </DropdownMenuItem>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => router.push("/support")}
+          >
+            {/* <div onClick={openProfile}>Profile</div> */}
+            Support
+          </DropdownMenuItem>
 
           <DropdownMenuItem
             className="cursor-pointer"

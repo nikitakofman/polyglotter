@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import Link from "next/link";
 import {
+  HelpCircle,
   MessageSquarePlus,
   MessageSquarePlusIcon,
   MessagesSquareIcon,
@@ -14,7 +15,7 @@ import UpgradeBanner from "./UpgradeBanner";
 import LanguageSelect from "./LanguageSelect";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import HelpCircleButton from "./HelpCircle";
 
 async function Header() {
   const session: any = await getServerSession(authOptions);
@@ -70,7 +71,9 @@ async function Header() {
               // "<Link href="/pricing" className="hover:text-gray-400 pr-3">
               //   Pricing
               // </Link>
-              ""
+              <div className="-m-2 sm:mr-3">
+                <HelpCircleButton />
+              </div>
             )}
           </div>
           <div className="flex items-center">
