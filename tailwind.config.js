@@ -77,5 +77,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"), // Add tailwindcss-animate plugin
+    require("daisyui"), // Add daisyui plugin
+  ],
 };
